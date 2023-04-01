@@ -40,12 +40,6 @@ public class UserInfo implements Serializable {
     private String userName;
 
     /**
-     * 用户邮箱
-     */
-    @TableField("email")
-    private String email;
-
-    /**
      * 学院专业ID
      */
     @TableField("aca_major_id")
