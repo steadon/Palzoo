@@ -11,6 +11,7 @@
 
     <!--后面创建的子模块-->
     <modules>
+        <module>chat-server</module>
         <module>user-server</module>
         <module>login-server</module>
         <module>topic-server</module>
