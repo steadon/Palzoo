@@ -5,9 +5,10 @@ import com.sipc.userserver.mapper.UserInfoMapper;
 import com.sipc.userserver.pojo.CommonResult;
 import com.sipc.userserver.pojo.domain.AcaMajor;
 import com.sipc.userserver.pojo.domain.UserInfo;
+import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
-import org.springframework.beans.factory.FactoryBean;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +42,23 @@ public class UserInfoServiceImpl implements UserInfoService {
         result.setAcademy(acaMajor.getAcaName());
         result.setMajor(acaMajor.getMajorName());
         return CommonResult.success(result);
+    }
+
+    /**
+     * @param param 新用户的信息
+     * @return 处理结果
+     */
+    @Override
+    public CommonResult<Null> postNewUserInfo(PostNewUserIdParam param) {
+        UserInfo ifexist = userInfoMapper.selectById(param.getUserId());
+        if (ifexist != null)
+            return CommonResult.fail("用户隐已存在");
+        UserInfo ui = new UserInfo();
+        ui.setUserId(param.getUserId());
+        ui.setUserName(param.getUserName());
+        int insert = userInfoMapper.insert(ui);
+        if (insert != 1)
+            return CommonResult.fail("服务器错误");
+        return CommonResult.success("请求正常");
     }
 }
