@@ -5,6 +5,7 @@ import com.sipc.userserver.mapper.UserInfoMapper;
 import com.sipc.userserver.pojo.CommonResult;
 import com.sipc.userserver.pojo.domain.AcaMajor;
 import com.sipc.userserver.pojo.domain.UserInfo;
+import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
@@ -59,6 +60,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         int insert = userInfoMapper.insert(ui);
         if (insert != 1)
             return CommonResult.fail("服务器错误");
+        return CommonResult.success("请求正常");
+    }
+
+    /**
+     * @param param 用户ID
+     * @return 处理结果
+     */
+    @Override
+    public CommonResult<Null> dropUserInfo(DropUserInfoParam param) {
+        int i = userInfoMapper.deleteById(param.getUserId());
+        if (i != 1)
+            return CommonResult.fail("系统错误");
         return CommonResult.success("请求正常");
     }
 }
