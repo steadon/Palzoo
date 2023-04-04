@@ -3,6 +3,7 @@ package com.sipc.userserver.controller;
 import com.sipc.userserver.pojo.CommonResult;
 import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
+import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,5 +36,10 @@ public class UserInfoController {
     @PostMapping("/info/drop")
     public CommonResult<Null> dropUserInfo(@RequestBody DropUserInfoParam param){
         return userInfoService.dropUserInfo(param);
+    }
+
+    @PostMapping("/info/update")
+    public CommonResult<Null> updateUserInfo(@RequestBody UpdateUserInfoParam param){
+        return userInfoService.UpdateUserInfo(param);
     }
 }
