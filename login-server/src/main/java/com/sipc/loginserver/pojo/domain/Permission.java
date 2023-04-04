@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -22,6 +23,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @TableName("permission")
 public class Permission implements Serializable {
 
@@ -43,8 +45,8 @@ public class Permission implements Serializable {
     /**
      * 权限描述
      */
-    @TableField("describe")
-    private String describe;
+    @TableField("description")
+    private String description;
 
     /**
      * 更新时间

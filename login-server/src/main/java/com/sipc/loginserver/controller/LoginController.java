@@ -4,16 +4,11 @@ import com.sipc.loginserver.pojo.CommonResult;
 import com.sipc.loginserver.pojo.param.OpenIdParam;
 import com.sipc.loginserver.pojo.param.SignInParam;
 import com.sipc.loginserver.service.LoginService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
+@RequestMapping("/sign")
 public class LoginController {
 
     private final LoginService loginService;
@@ -23,9 +18,13 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/in")
     public CommonResult<OpenIdParam> signIn(@RequestBody SignInParam param) {
         return loginService.signIn(param);
     }
 
+    @GetMapping("/off")
+    CommonResult<String> signOff(@RequestParam String openid) {
+        return loginService.signOff(openid);
+    }
 }
