@@ -11,7 +11,6 @@ import com.sipc.loginserver.pojo.param.OpenIdParam;
 import com.sipc.loginserver.pojo.param.SignInParam;
 import com.sipc.loginserver.service.LoginService;
 import com.sipc.loginserver.util.WechatCommonUtil;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +19,21 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Resource;
 
+/**
+ * @author Sterben
+ * 2023.4.4
+ * @implNote 微信登录&&软删除注销
+ */
 @Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
     @Resource
     private WechatCommonUtil wechatCommonUtil;
-
     @Resource
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     @Override
-    @SneakyThrows
+//    @SneakyThrows
     @Transactional
     public CommonResult<OpenIdParam> signIn(SignInParam param) {
         //获取微信小程序相关常量
@@ -65,16 +68,29 @@ public class LoginServiceImpl implements LoginService {
             throw new BusinessException("无效的登录凭证");
         }
 
-        //注册并获取信息
-        User user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
+        //获取信息
+        User user = userMapper.selectOne(new QueryWrapper<User>()
+                .eq("openid", openid)
+                .eq("is_deleted", 0));
 
         //未注册增添加新用户
         if (user == null) {
-            int insertCount = userMapper.insert(new User(openid));
-            if (insertCount == 0) {
+            if (userMapper.insert(new User(openid)) == 0) {
                 throw new BusinessException("添加用户失败");
             }
         }
         return CommonResult.success(new OpenIdParam(sessionKey, openid));
+    }
+
+    @Override
+    public CommonResult<String> signOff(String openid) {
+        User user = userMapper.selectOne(new QueryWrapper<User>()
+                .eq("openid", openid)
+                .eq("is_deleted", 0));
+
+        if (user == null) throw new BusinessException("该用户不存在或已被删除");
+        user.setIsDeleted((byte) 1);
+        if (userMapper.updateById(user) == 0) throw new BusinessException("注销失败");
+        return CommonResult.success("注销成功");
     }
 }

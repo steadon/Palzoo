@@ -6,4 +6,6 @@ import com.sipc.loginserver.pojo.param.SignInParam;
 
 public interface LoginService {
     CommonResult<OpenIdParam> signIn(SignInParam param);
+
+    CommonResult<String> signOff(String openid);
 }
