@@ -4,14 +4,17 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author sterben
@@ -22,6 +25,7 @@ import lombok.Setter;
 @TableName("user")
 public class User implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,12 +33,6 @@ public class User implements Serializable {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-
-    /**
-     * 用户密码
-     */
-    @TableField("password")
-    private String password;
 
     /**
      * 电话号码
@@ -71,4 +69,13 @@ public class User implements Serializable {
      */
     @TableField("is_deleted")
     private Byte isDeleted;
+
+    public User(String openid) {
+        this.openid = openid;
+        this.createTime = LocalDateTime.now();
+        this.updateTime = this.createTime;
+        this.permissionId = 2;
+        this.isDeleted = 0;
+        this.phone = null;
+    }
 }
