@@ -3,7 +3,6 @@ package com.sipc.topicserver.pojo.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import lombok.Getter;
@@ -19,21 +18,20 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("category")
-public class Category implements Serializable {
+@TableName("category_next")
+public class CategoryNext implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    @TableField("category_id")
+    private Integer categoryId;
+
     @TableField("name")
     private String name;
 
     @TableField("description")
     private String description;
-
-    @TableField("is_deleted")
-    @TableLogic
-    private Byte isDeleted;
 }

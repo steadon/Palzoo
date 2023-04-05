@@ -22,6 +22,12 @@ public class DetailResult {
 
     private Integer watchNum;
 
+    private String stopTime;
+
+    private String startTime;
+
+    private String endTime;
+
     private Byte isFinish;
 
 }
