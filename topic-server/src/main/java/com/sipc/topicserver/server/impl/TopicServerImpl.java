@@ -3,16 +3,16 @@ package com.sipc.topicserver.server.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sipc.topicserver.config.DirectRabbitConfig;
+import com.sipc.topicserver.constant.Constant;
 import com.sipc.topicserver.mapper.CategoryMapper;
+import com.sipc.topicserver.mapper.CategoryNextMapper;
 import com.sipc.topicserver.mapper.PostMapper;
 import com.sipc.topicserver.pojo.domain.Category;
+import com.sipc.topicserver.pojo.domain.CategoryNext;
 import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.mic.result.GetUserInfoResult;
-import com.sipc.topicserver.pojo.dto.param.DeleteParam;
-import com.sipc.topicserver.pojo.dto.param.FinishParam;
-import com.sipc.topicserver.pojo.dto.param.SearchParam;
-import com.sipc.topicserver.pojo.dto.param.SubmitParam;
+import com.sipc.topicserver.pojo.dto.param.*;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.Waterfall;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
@@ -49,6 +49,9 @@ public class TopicServerImpl implements TopicServer {
 
     @Resource
     public PostMapper postMapper;
+
+    @Resource
+    private CategoryNextMapper categoryNextMapper;
 
     //找不到UserServer的been
     @Resource
@@ -98,21 +101,67 @@ public class TopicServerImpl implements TopicServer {
             screen.put("category_id", category1.getId().toString());
         }
 
+        //单独处理子标签
+        List<Integer> categoryNextIds = new ArrayList<>();
+
+        String categoryNext = screen.get("categoryNext");
+        if (categoryNext != null) {
+            //categoryNext以&为分隔符
+            for (String s : categoryNext.split("&")) {
+                CategoryNext name = categoryNextMapper.selectOne(
+                        new QueryWrapper<CategoryNext>()
+                                .select("id")
+                                .eq("name", s)
+                                .last("limit 1")
+                );
+                categoryNextIds.add(name.getId());
+            }
+            screen.remove("categoryNext");
+        }
+
+        if (searchParam.getLastTime() == null) {
+            searchParam.setLastTime(LocalDateTime.now().toEpochSecond(Constant.zoneOffset));
+        }
+
         //
         LocalDateTime nextTime = LocalDateTime.now();
 
+
+        List<Post> postList = new ArrayList<>();
+
+        //如果没有子标签
+        if (categoryNextIds.isEmpty()) {
+            postList = postMapper.selectList(
+                    new QueryWrapper<Post>()
+                            .allEq(screen)
+                            .lt("created_time", searchParam.getLastTime())
+                            .ge("stop_time", LocalDateTime.now().toEpochSecond(Constant.zoneOffset))
+                            .ge("start_time", LocalDateTime.parse(searchParam.getStartTime(),
+                                    Constant.dateTimeFormatter))
+                            .lt("start_time", LocalDateTime.parse(searchParam.getEndTime(),
+                                    Constant.dateTimeFormatter))
+                            .orderByDesc("created_time")
+                            .last("limit 10")
+            );
+        }
+        else {
+            postList = postMapper.selectList(
+                    new QueryWrapper<Post>()
+                            .allEq(screen)
+                            .in("category_next_id", categoryNextIds)
+                            .lt("created_time", searchParam.getLastTime())
+                            .ge("stop_time", LocalDateTime.now().toEpochSecond(Constant.zoneOffset))
+                            .ge("start_time", LocalDateTime.parse(searchParam.getStartTime(),
+                                    Constant.dateTimeFormatter))
+                            .lt("start_time", LocalDateTime.parse(searchParam.getEndTime(),
+                                    Constant.dateTimeFormatter))
+                            .orderByDesc("created_time")
+                            .last("limit 10")
+            );
+        }
+
         //循环填充内容
-        for (Post post : postMapper.selectList(
-                new QueryWrapper<Post>()
-                        .allEq(screen)
-                        .lt("created_time", searchParam.getLastTime())
-                        .ge("start_time", LocalDateTime.parse(searchParam.getStartTime(),
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .lt("end_time", LocalDateTime.parse(searchParam.getEndTime(),
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .orderByDesc("created_time")
-                        .last("limit 10")
-        )) {
+        for (Post post : postList) {
 
             //redis获取用户信息
             GetUserInfoResult author = this.getAuthor(post.getAuthorId());
@@ -128,8 +177,9 @@ public class TopicServerImpl implements TopicServer {
             waterfall.setBrief(post.getBrief());
             waterfall.setAuthorName(author.getUsername());
             waterfall.setWatchNum(post.getWatchNum());
-            waterfall.setStartTime(post.getStartTime().toString());
-            waterfall.setEndTime(post.getEndTime().toString());
+            waterfall.setStopTime(post.getStopTime().format(Constant.dateTimeFormatter));
+            waterfall.setStartTime(post.getStartTime().format(Constant.dateTimeFormatter));
+            waterfall.setEndTime(post.getEndTime().format(Constant.dateTimeFormatter));
 
             waterfalls.add(waterfall);
 
@@ -138,7 +188,7 @@ public class TopicServerImpl implements TopicServer {
 
         waterfallResult.setWaterfalls(waterfalls);
         //nextTime.toEpochSecond(ZoneOffset.ofTotalSeconds(8))
-        waterfallResult.setNextTime(nextTime.toEpochSecond(ZoneOffset.ofHours(8)));
+        waterfallResult.setNextTime(nextTime.toEpochSecond(Constant.zoneOffset));
         return CommonResult.success(waterfallResult);
     }
 
@@ -193,6 +243,9 @@ public class TopicServerImpl implements TopicServer {
         result.setContent(post.getContent());
         result.setAuthorName(author.getUsername());
         result.setWatchNum(post.getWatchNum());
+        result.setStopTime(post.getStopTime().format(Constant.dateTimeFormatter));
+        result.setStartTime(post.getStartTime().format(Constant.dateTimeFormatter));
+        result.setEndTime(post.getEndTime().format(Constant.dateTimeFormatter));
         result.setIsFinish(post.getIsFinish());
 
         return CommonResult.success(result);
@@ -231,8 +284,9 @@ public class TopicServerImpl implements TopicServer {
             waterfall.setBrief(post.getBrief());
             waterfall.setAuthorName(author.getUsername());
             waterfall.setWatchNum(post.getWatchNum());
-            waterfall.setStartTime(post.getStartTime().toString());
-            waterfall.setEndTime(post.getEndTime().toString());
+            waterfall.setStopTime(post.getStopTime().format(Constant.dateTimeFormatter));
+            waterfall.setStartTime(post.getStartTime().format(Constant.dateTimeFormatter));
+            waterfall.setEndTime(post.getEndTime().format(Constant.dateTimeFormatter));
 
             waterfalls.add(waterfall);
 
@@ -252,12 +306,29 @@ public class TopicServerImpl implements TopicServer {
                 new UpdateWrapper<Post>()
                         .eq("id", deleteParam.getPostId())
                         .eq("author_id", deleteParam.getAuthorId())
+                        .eq("updated_time", LocalDateTime.now())
                         .set("is_deleted", 1));
         if (update != 1) {
             return CommonResult.fail("删除失败");
         }
 
         return CommonResult.success("删除成功");
+    }
+
+    @Override
+    public CommonResult<String> delay(DelayParam delayParam) {
+
+        int update = postMapper.update(new Post(),
+                new UpdateWrapper<Post>()
+                        .eq("id", delayParam.getPostId())
+                        .set("stop_time", delayParam.getTime())
+        );
+        if (update != 1) {
+            log.info("延迟帖子失败，数据库更新数异常，为 {}" , update);
+            return CommonResult.fail("操作失败");
+        }
+
+        return CommonResult.success("延迟成功");
     }
 
     private GetUserInfoResult getAuthor(Integer authorId) {

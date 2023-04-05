@@ -3,9 +3,8 @@ package com.sipc.topicserver.pojo.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -17,14 +16,13 @@ import lombok.Setter;
  * </p>
  *
  * @author tzih
- * @since 2023-04-04
+ * @since 2023-04-05
  */
 @Getter
 @Setter
 @TableName("comment")
 public class Comment implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -46,5 +44,6 @@ public class Comment implements Serializable {
     private LocalDateTime updatedTime;
 
     @TableField("is_deleted")
+    @TableLogic
     private Byte isDeleted;
 }

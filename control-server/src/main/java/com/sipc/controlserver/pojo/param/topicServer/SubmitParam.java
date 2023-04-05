@@ -14,6 +14,7 @@ import java.io.Serializable;
 @Data
 public class SubmitParam implements Serializable {
 
+
     private String title;
 
     private String category;
@@ -21,6 +22,8 @@ public class SubmitParam implements Serializable {
     private String brief;
 
     private String context;
+
+    private String stopTime;
 
     //LocalDateTime不可以，HttpMessageNotReadableException，need additional information such as an offset or time-zone
     // (see class Javadocs); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException

@@ -57,6 +57,7 @@ public class SubmitConsumer {
         post.setAuthorId(authorId);
         post.setCategoryId(category.getId());
         post.setIsFinish((byte) 0);
+        post.setStopTime(LocalDateTime.parse(submitParam.getStopTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         post.setStartTime(LocalDateTime.parse(submitParam.getStartTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         post.setEndTime(LocalDateTime.parse(submitParam.getEndTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         post.setWatchNum(0);

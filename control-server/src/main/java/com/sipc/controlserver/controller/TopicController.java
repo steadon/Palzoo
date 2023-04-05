@@ -1,21 +1,20 @@
 package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
-import com.sipc.controlserver.pojo.param.topicServer.DeleteParam;
-import com.sipc.controlserver.pojo.param.topicServer.FinishParam;
-import com.sipc.controlserver.pojo.param.topicServer.SearchParam;
-import com.sipc.controlserver.pojo.param.topicServer.SubmitParam;
+import com.sipc.controlserver.pojo.param.topicServer.*;
 import com.sipc.controlserver.pojo.result.topicServer.DetailResult;
 import com.sipc.controlserver.pojo.result.topicServer.WaterfallResult;
 import com.sipc.controlserver.service.feign.TopicServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+
 
 /**
  * ClassName TopicController
  * Description controller里topicController
- * Author o3141
+ * @author o3141
  * Date 2023/4/5 9:19
  * Version 1.0
  */
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/controller/topic")
 public class TopicController {
 
-    @Autowired
+    @Resource
     private TopicServer topicServer;
 
     @GetMapping("/ping")
@@ -65,6 +64,11 @@ public class TopicController {
     @PostMapping("/delete")
     public CommonResult<String> delete(@RequestBody DeleteParam deleteParam) {
         return topicServer.delete(deleteParam);
+    }
+
+    @PostMapping("/delay")
+    public CommonResult<String> delay(@RequestBody DelayParam delayParam) {
+        return topicServer.delay(delayParam);
     }
 
 }
