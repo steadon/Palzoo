@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 
 /**
- * @ClassName TopicController
- * @Description 关于帖子的操作
- * @Author tzih
- * @Date 2023/4/3 20:27
- * @Version 1.0
+ * ClassName TopicController
+ * Description 关于帖子的操作
+ * Author tzih
+ * Date 2023/4/3 20:27
+ * Version 1.0
  */
 @RestController
 @RequestMapping("/topic-server")

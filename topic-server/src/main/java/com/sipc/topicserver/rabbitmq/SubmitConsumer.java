@@ -9,7 +9,6 @@ import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.param.SubmitParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -17,11 +16,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * @ClassName SubmitConsumer
- * @Description TODO
- * @Author o3141
- * @Date 2023/4/4 18:59
- * @Version 1.0
+ * ClassName SubmitConsumer
+ * Description TODO
+ * Author o3141
+ * Date 2023/4/4 18:59
+ * Version 1.0
  */
 @Component
 @Slf4j

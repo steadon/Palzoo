@@ -33,11 +33,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @ClassName TopicServerImpl
- * @Description topic服务的处理类
- * @Author o3141
- * @Date 2023/4/3 22:09
- * @Version 1.0
+ * ClassName TopicServerImpl
+ * Description topic服务的处理类
+ * Author o3141
+ * Date 2023/4/3 22:09
+ * Version 1.0
  */
 @Service
 @Slf4j

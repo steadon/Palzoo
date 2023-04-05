@@ -18,6 +18,6 @@ public class LocalTimeTest {
     @Test
     public void Test() {
         LocalDateTime now = LocalDateTime.now();
-//        now.
+        System.out.println(now);
     }
 }
