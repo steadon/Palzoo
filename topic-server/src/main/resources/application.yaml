@@ -1,4 +1,63 @@
 server:
   port: 11520
 
+localhost: 43.142.146.75
 
+spring:
+  application:
+    name: topic-server
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${localhost}:3306/tjut_wall_topic_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: user
+    password: user
+  redis:
+    host: ${localhost}
+    port: 6379
+    password: 123456
+    connect-timeout: 10000
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+  rabbitmq:
+    host: ${localhost}
+    port: 5672
+    username: guest
+    password: guest
+    #确认消息已发送到交换机(Exchange)
+    publisher-confirm-type: correlated
+    #确认消息已发送到队列(Queue)
+    publisher-returns: true
+
+  cloud:
+    nacos:
+      server-addr: ${localhost}:8848
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+
+#swagger:
+#  enable: true
+#  application-name: ${spring.application.name}
+#  application-version: 1.0
+#  application-description: springfox swagger3
+#  try-host: http://localhost:${server.port}
+
+logging:
+  level:
+    com.sipc.mmtbackend.mapper: debug

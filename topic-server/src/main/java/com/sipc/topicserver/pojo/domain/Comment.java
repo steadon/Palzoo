@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -15,13 +17,14 @@ import lombok.Setter;
  * </p>
  *
  * @author tzih
- * @since 2023-04-02
+ * @since 2023-04-04
  */
 @Getter
 @Setter
 @TableName("comment")
 public class Comment implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)

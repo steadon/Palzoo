@@ -31,14 +31,14 @@ public class CodeGeneratorTest {
                 .create(url, username, password)
                 //全局配置
                 .globalConfig(builder -> builder.author("tzih")
-                        .outputDir("/home/tzih/javaProject/tjut-wall/topic-server/src/main/java"))
+                        .outputDir("src/main/java"))
                 //包配置
                 .packageConfig(builder -> builder.parent("com.sipc")
                         .moduleName("topicserver")
                         .entity("pojo.domain")
                         .mapper("mapper")
                         .xml("mapper.xml")
-                        .pathInfo(Collections.singletonMap(OutputFile.xml, "/home/tzih/javaProject/tjut-wall/topic-server/src/main/resources/mapper")))
+                        .pathInfo(Collections.singletonMap(OutputFile.xml, "src/main/resources/mapper")))
                 //策略配置,要生成的表的表名
                 .strategyConfig(builder -> builder.addInclude("post", "comment", "category")
                         //实体类策略配置，enableFileOverride覆盖原文件
