@@ -1,6 +1,6 @@
 package com.sipc.topicserver.mapper;
 
-import com.sipc.topicserver.pojo.domain.Category;
+import com.sipc.topicserver.pojo.domain.CategoryNext;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2023-04-05
  */
 @Mapper
-public interface CategoryMapper extends BaseMapper<Category> {
+public interface CategoryNextMapper extends BaseMapper<CategoryNext> {
 
 }

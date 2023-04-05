@@ -19,8 +19,10 @@ public class Waterfall {
     private String brief;
 
     private String authorName;
-    
+
     private Integer watchNum;
+
+    private String stopTime;
 
     private String startTime;
 

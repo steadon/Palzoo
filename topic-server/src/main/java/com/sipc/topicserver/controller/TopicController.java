@@ -1,10 +1,7 @@
 package com.sipc.topicserver.controller;
 
 import com.sipc.topicserver.pojo.dto.CommonResult;
-import com.sipc.topicserver.pojo.dto.param.DeleteParam;
-import com.sipc.topicserver.pojo.dto.param.FinishParam;
-import com.sipc.topicserver.pojo.dto.param.SearchParam;
-import com.sipc.topicserver.pojo.dto.param.SubmitParam;
+import com.sipc.topicserver.pojo.dto.param.*;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
 import com.sipc.topicserver.server.TopicServer;
@@ -65,6 +62,11 @@ public class TopicController {
     @PostMapping("/delete")
     public CommonResult<String> delete(@RequestBody DeleteParam deleteParam) {
         return topicServer.delete(deleteParam);
+    }
+
+    @PostMapping("/delay")
+    public CommonResult<String> delay(@RequestBody DelayParam delayParam) {
+        return topicServer.delay(delayParam);
     }
 
 

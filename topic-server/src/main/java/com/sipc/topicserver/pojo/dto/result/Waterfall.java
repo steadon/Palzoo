@@ -22,6 +22,8 @@ public class Waterfall {
     
     private Integer watchNum;
 
+    private String stopTime;
+
     private String startTime;
 
     private String endTime;

@@ -1,10 +1,7 @@
 package com.sipc.topicserver.server;
 
 import com.sipc.topicserver.pojo.dto.CommonResult;
-import com.sipc.topicserver.pojo.dto.param.DeleteParam;
-import com.sipc.topicserver.pojo.dto.param.FinishParam;
-import com.sipc.topicserver.pojo.dto.param.SearchParam;
-import com.sipc.topicserver.pojo.dto.param.SubmitParam;
+import com.sipc.topicserver.pojo.dto.param.*;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
 
@@ -28,5 +25,7 @@ public interface TopicServer {
     CommonResult<WaterfallResult> author(Integer authorId, Long lastTime);
 
     CommonResult<String> delete(DeleteParam deleteParam);
+
+    CommonResult<String> delay(DelayParam delayParam);
 
 }
