@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
  * </p>
  *
  * @author sterben
- * @since 2023-04-02
+ * @since 2023-04-05
  */
 @Mapper
 public interface AcaMajorMapper extends BaseMapper<AcaMajor> {

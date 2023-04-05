@@ -8,4 +8,6 @@ public class GetUserInfoResult {
     private String username;
     private String academy;
     private String major;
+    private String gender;
+    private String phone;
 }

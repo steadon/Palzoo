@@ -36,14 +36,21 @@ public class UserInfoServiceImpl implements UserInfoService {
         UserInfo userInfo = userInfoMapper.selectById(uid);
         if (userInfo == null)
             return CommonResult.fail("查无此人");
-        AcaMajor acaMajor = acaMajorMapper.selectById(userInfo.getAcaMajorId());
-        if (acaMajor == null)
-            return CommonResult.fail("数据错误，查无专业信息");
+
         GetUserInfoResult result = new GetUserInfoResult();
         result.setUserId(uid);
         result.setUsername(userInfo.getUserName());
-        result.setAcademy(acaMajor.getAcaName());
-        result.setMajor(acaMajor.getMajorName());
+        if (userInfo.getAcaMajorId() != null){
+            AcaMajor acaMajor = acaMajorMapper.selectById(userInfo.getAcaMajorId());
+            if (acaMajor == null)
+                return CommonResult.fail("数据错误，查无专业信息");
+            result.setAcademy(acaMajor.getAcaName());
+            result.setMajor(acaMajor.getMajorName());
+        }
+        if (userInfo.getPhone() != null)
+            result.setPhone(userInfo.getPhone());
+        if (userInfo.getGender() != null)
+            result.setGender(userInfo.getGender() ? "男" : "女");
         return CommonResult.success(result);
     }
 
@@ -96,6 +103,10 @@ public class UserInfoServiceImpl implements UserInfoService {
             userInfo.setUserName(param.getUserName());
         if (param.getAcaMajorId() != null)
             userInfo.setAcaMajorId(param.getAcaMajorId());
+        if (param.getPhone() != null)
+            userInfo.setPhone(param.getPhone());
+        if (param.getGender() != null)
+            userInfo.setGender(param.getGender());
         userInfoMapper.updateById(userInfo);
         return CommonResult.success("请求正常");
     }
