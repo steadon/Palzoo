@@ -9,10 +9,12 @@ import com.sipc.loginserver.pojo.domain.Permission;
 import com.sipc.loginserver.pojo.domain.User;
 import com.sipc.loginserver.pojo.param.LevelParam;
 import com.sipc.loginserver.service.CheckService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+@Slf4j
 @Service
 public class CheckServiceImpl implements CheckService {
     @Resource
@@ -37,5 +39,15 @@ public class CheckServiceImpl implements CheckService {
         String description = permission.getDescription();
         //包装后返回
         return CommonResult.success(new LevelParam(level, description));
+    }
+
+    @Override
+    public User getUser(String openid) {
+        User user = userMapper.selectOne(new QueryWrapper<User>()
+                .eq("openid", openid)
+                .eq("is_deleted", 0));
+        log.info(openid);
+        if (user == null) throw new BusinessException("非法用户");
+        return user;
     }
 }
