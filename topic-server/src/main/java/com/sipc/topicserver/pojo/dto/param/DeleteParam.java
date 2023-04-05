@@ -3,11 +3,11 @@ package com.sipc.topicserver.pojo.dto.param;
 import lombok.Data;
 
 /**
- * @ClassName DeleteParam
- * @Description TODO
- * @Author o3141
- * @Date 2023/4/4 21:12
- * @Version 1.0
+ * ClassName DeleteParam
+ * Description
+ * Author o3141
+ * Date 2023/4/4 21:12
+ * Version 1.0
  */
 @Data
 public class DeleteParam {

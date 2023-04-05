@@ -6,10 +6,10 @@ import java.util.Map;
 
 /**
  * @ClassName SearchParam
- * @Description TODO
- * @Author o3141
- * @Date 2023/4/3 22:55
- * @Version 1.0
+ * Description
+ * Author o3141
+ * Date 2023/4/3 22:55
+ * Version 1.0
  */
 @Data
 public class SearchParam {

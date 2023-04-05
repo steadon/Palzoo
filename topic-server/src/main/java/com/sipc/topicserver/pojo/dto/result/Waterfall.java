@@ -3,11 +3,11 @@ package com.sipc.topicserver.pojo.dto.result;
 import lombok.Data;
 
 /**
- * @ClassName searchResult
- * @Description TODO
- * @Author o3141
- * @Date 2023/4/4 9:33
- * @Version 1.0
+ * ClassName searchResult
+ * Description
+ * Author o3141
+ * Date 2023/4/4 9:33
+ * Version 1.0
  */
 @Data
 public class Waterfall {

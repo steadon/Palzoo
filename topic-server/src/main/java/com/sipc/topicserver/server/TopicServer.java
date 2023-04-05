@@ -9,11 +9,11 @@ import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
 
 /**
- * @ClassName TopicServer
- * @Description TODO
- * @Author o3141
- * @Date 2023/4/3 22:08
- * @Version 1.0
+ * ClassName TopicServer
+ * Description
+ * Author o3141
+ * Date 2023/4/3 22:08
+ * Version 1.0
  */
 public interface TopicServer {
 

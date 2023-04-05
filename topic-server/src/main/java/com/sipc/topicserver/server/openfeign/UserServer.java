@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * @ClassName usererver
- * @Description TODO
- * @Author o3141
- * @Date 2023/4/4 11:56
- * @Version 1.0
+ * ClassName userServer
+ * Description
+ * Author o3141
+ * Date 2023/4/4 11:56
+ * Version 1.0
  */
 @FeignClient("user-server")
 public interface UserServer {
