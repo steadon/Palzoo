@@ -116,6 +116,9 @@ public class TopicServerImpl implements TopicServer {
 
             //redis获取用户信息
             GetUserInfoResult author = this.getAuthor(post.getAuthorId());
+            if (author == null) {
+                return CommonResult.fail("操作错误，无用户");
+            }
 
             //组装帖子信息
             Waterfall waterfall = new Waterfall();
@@ -242,6 +245,21 @@ public class TopicServerImpl implements TopicServer {
         return CommonResult.success(result);
     }
 
+    @Override
+    public CommonResult<String> delete(DeleteParam deleteParam) {
+
+        int update = postMapper.update(new Post(),
+                new UpdateWrapper<Post>()
+                        .eq("id", deleteParam.getPostId())
+                        .eq("author_id", deleteParam.getAuthorId())
+                        .set("is_deleted", 1));
+        if (update != 1) {
+            return CommonResult.fail("删除失败");
+        }
+
+        return CommonResult.success("删除成功");
+    }
+
     private GetUserInfoResult getAuthor(Integer authorId) {
         //redis获取用户信息
         GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("userId" + authorId);
@@ -257,20 +275,5 @@ public class TopicServerImpl implements TopicServer {
             redisUtil.set("userId" + authorId, author);
         }
         return author;
-    }
-
-    @Override
-    public CommonResult<String> delete(DeleteParam deleteParam) {
-
-        int update = postMapper.update(new Post(),
-                new UpdateWrapper<Post>()
-                        .eq("id", deleteParam.getPostId())
-                        .eq("author_id", deleteParam.getAuthorId())
-                        .set("is_deleted", 1));
-        if (update != 1) {
-            return CommonResult.fail("删除失败");
-        }
-
-        return CommonResult.success("删除成功");
     }
 }
