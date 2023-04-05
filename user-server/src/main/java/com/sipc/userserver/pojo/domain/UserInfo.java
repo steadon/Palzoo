@@ -17,7 +17,7 @@ import lombok.Setter;
  * </p>
  *
  * @author sterben
- * @since 2023-04-02
+ * @since 2023-04-05
  */
 @Getter
 @Setter
@@ -38,6 +38,18 @@ public class UserInfo implements Serializable {
      */
     @TableField("user_name")
     private String userName;
+
+    /**
+     * 性别，1男0女
+     */
+    @TableField("gender")
+    private Boolean gender;
+
+    /**
+     * 用户手机和
+     */
+    @TableField("phone")
+    private String phone;
 
     /**
      * 学院专业ID
