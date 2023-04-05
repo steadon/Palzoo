@@ -8,12 +8,13 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author sterben
@@ -32,16 +33,24 @@ public class RoomUserMerge implements Serializable {
 
     @TableField("uid")
     private Integer uid;
-
     @TableField("room_id")
     private Integer roomId;
-
     @TableField("create_time")
     private LocalDateTime createTime;
-
     @TableField("update_time")
     private LocalDateTime updateTime;
 
     @TableField("is_deleted")
     private Byte isDeleted;
+
+    public RoomUserMerge(Integer uid, Integer roomId) {
+        this.uid = uid;
+        this.roomId = roomId;
+        this.createTime = LocalDateTime.now();
+        this.updateTime = this.createTime;
+    }
+
+    public RoomUserMerge() {
+
+    }
 }

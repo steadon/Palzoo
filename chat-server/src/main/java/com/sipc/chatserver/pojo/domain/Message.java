@@ -8,12 +8,13 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author sterben
@@ -47,4 +48,16 @@ public class Message implements Serializable {
 
     @TableField("is_deleted")
     private Byte isDeleted;
+
+    public Message(Integer uid, Integer roomId, String message) {
+        this.uid = uid;
+        this.roomId = roomId;
+        this.message = message;
+        this.createTime = LocalDateTime.now();
+        this.updateTime = this.createTime;
+    }
+
+    public Message(){
+
+    }
 }

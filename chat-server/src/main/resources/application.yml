@@ -1,1 +1,26 @@
+server:
+  port: 11540
 
+localhost: localhost
+
+remote-host: 43.142.146.75
+
+spring:
+  application:
+    name: chat-server
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${remote-host}/tjut_wall_chat_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: user
+    password: user
+  redis:
+    url: redis://root@${localhost}:6379
+    connect-timeout: 10000
+  cloud:
+    nacos:
+      server-addr: ${remote-host}:8848
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
