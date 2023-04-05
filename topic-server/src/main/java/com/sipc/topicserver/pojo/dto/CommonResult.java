@@ -1,7 +1,7 @@
-package com.sipc.topicserver.pojo;
+package com.sipc.topicserver.pojo.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sipc.loginserver.pojo.resultEnum.ResultEnum;
+import com.sipc.topicserver.pojo.dto.resultEnum.ResultEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

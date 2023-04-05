@@ -1,4 +1,4 @@
-package com.sipc.topicserver.pojo.resultEnum;
+package com.sipc.topicserver.pojo.dto.resultEnum;
 
 import lombok.Getter;
 
