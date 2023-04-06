@@ -32,7 +32,7 @@ public class CodeGeneratorTest {
                 //连接数据库
                 .create(url, username, password)
                 //全局配置
-                .globalConfig(builder -> builder.author("sterben").outputDir("src/main/java"))
+                .globalConfig(builder -> builder.author("DoudiNCer").outputDir("src/main/java"))
                 //包配置
                 .packageConfig(builder -> builder.parent("com.sipc").moduleName("userserver").entity("pojo.domain").mapper("mapper").xml("mapper.xml").pathInfo(Collections.singletonMap(OutputFile.xml, "src/main/resources/mapper")))
                 //策略配置

@@ -16,6 +16,7 @@
         <module>login-server</module>
         <module>topic-server</module>
         <module>control-server</module>
+        <module>team-server</module>
     </modules>
 
     <properties>
