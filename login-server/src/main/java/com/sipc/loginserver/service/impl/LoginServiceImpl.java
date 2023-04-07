@@ -75,9 +75,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         //获取用户信息
-        User user = userMapper.selectOne(new QueryWrapper<User>()
-                .eq("openid", openid)
-                .eq("is_deleted", 0));
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
 
         //未注册增添加新用户
         if (user == null) {
@@ -86,9 +84,7 @@ public class LoginServiceImpl implements LoginService {
             }
 
             //再次获取该用户(因为insert失败会抛出异常，所以此处采取乐观式检查)
-            user = userMapper.selectOne(new QueryWrapper<User>()
-                    .eq("openid", openid)
-                    .eq("is_deleted", 0));
+            user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
 
             //远程调用 user-server 添加用户
             String code = userServer.postNewUserInfo(new PostNewUserIdParam(user.getId(), user.getOpenid())).getCode();
@@ -100,9 +96,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public CommonResult<String> signOff(String openid) {
         //查询用户验证合法性
-        User user = userMapper.selectOne(new QueryWrapper<User>()
-                .eq("openid", openid)
-                .eq("is_deleted", 0));
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
         if (user == null) throw new BusinessException("该用户不存在或已被删除");
 
         //软删除该用户

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponents;
@@ -66,10 +67,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             //获取user和room
             User user = loginServer.getUser(openid);
             if (user == null) throw new BusinessException("非法用户");
-            Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId).eq("is_deleted", 0));
+            Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
             if (room == null) {
                 if (roomMapper.insert(new Room(postId)) == 0) throw new BusinessException("创建聊天室失败");
-                room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId).eq("is_deleted", 0));
+                room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
             }
 
             //数据库记录用户进入聊天室信息
@@ -126,7 +127,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             users.remove(session);
 
             //软删除该用户
-            List<RoomUserMerge> roomUserMerges = roomUserMergeMapper.selectList(new QueryWrapper<RoomUserMerge>().eq("uid", inject.getUser().getId()).eq("room_id", inject.getRoom().getId()).eq("is_deleted", 0));
+            List<RoomUserMerge> roomUserMerges = roomUserMergeMapper.selectList(new QueryWrapper<RoomUserMerge>().eq("uid", inject.getUser().getId()).eq("room_id", inject.getRoom().getId()));
             roomUserMerges.forEach(a -> {
                 a.setIsDeleted((byte) 1);
                 roomUserMergeMapper.updateById(a);
@@ -212,7 +213,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         //feign 远程调用 login-server 获取 user 对象
         User user = loginServer.getUser(openid);
         //数据库查找聊天室信息
-        Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId).eq("is_deleted", 0));
+        Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
         if (room == null && user == null) throw new BusinessException("非法聊天");
         return new RoomAndUser(user, room);
     }

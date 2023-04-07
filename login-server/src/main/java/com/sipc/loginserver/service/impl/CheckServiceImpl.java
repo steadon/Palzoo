@@ -29,15 +29,11 @@ public class CheckServiceImpl implements CheckService {
     @Override
     public CommonResult<LevelParam> checkRole(String openid) {
         //查询该用户信息
-        User user = userMapper.selectOne(new QueryWrapper<User>()
-                .eq("openid", openid)
-                .eq("is_deleted", 0));
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
         if (user == null) throw new BusinessException("非法用户");
 
         //查询权限等级
-        Permission permission = permissionMapper.selectOne(new QueryWrapper<Permission>()
-                .eq("id", user.getPermissionId())
-                .eq("is_deleted", 0));
+        Permission permission = permissionMapper.selectOne(new QueryWrapper<Permission>().eq("id", user.getPermissionId()));
         if (permission == null) throw new BusinessException("非法用户");
 
         //包装后返回
@@ -53,9 +49,7 @@ public class CheckServiceImpl implements CheckService {
     @Override
     public User checkUser(String openid) {
         log.info("openid: " + openid);
-        User user = userMapper.selectOne(new QueryWrapper<User>()
-                .eq("openid", openid)
-                .eq("is_deleted", 0));
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
         if (user == null) throw new BusinessException("非法用户");
         return user;
     }
