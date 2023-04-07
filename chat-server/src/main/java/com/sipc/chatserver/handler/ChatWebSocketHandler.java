@@ -159,6 +159,26 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
+     * 广播对象
+     *
+     * @param postId  帖子ID
+     * @param message 要广播的对象
+     */
+    private void broadcast(String postId, Message message) {
+        List<WebSocketSession> users = rooms.get(postId);
+        if (users != null) {
+            for (WebSocketSession session : users) {
+                //对该组内的用户广播消息对象
+                try {
+                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+                } catch (IOException e) {
+                    log.error("Error occurred while broadcasting message.", e);
+                }
+            }
+        }
+    }
+
+    /**
      * 推送历史消息
      *
      * @param session 会话
@@ -171,7 +191,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 Integer uid = message.getUid();
                 //读取对应房间的历史消息
                 if (message.getRoomId().equals(postId)) {
-                    session.sendMessage(new TextMessage(uid + ": " + message.getMessage()));
+                    session.sendMessage(new TextMessage("用户 " + uid + ": " + message.getMessage()));
                 }
             }
         } catch (IOException e) {

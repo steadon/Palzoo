@@ -55,6 +55,7 @@
             </exclusions>
             <version>2.2.0.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>

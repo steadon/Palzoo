@@ -57,7 +57,7 @@ public class Message implements Serializable {
         this.updateTime = this.createTime;
     }
 
-    public Message(){
+    public Message() {
 
     }
 }

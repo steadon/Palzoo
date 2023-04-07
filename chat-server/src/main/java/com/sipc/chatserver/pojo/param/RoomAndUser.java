@@ -8,6 +8,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class RoomAndUser {
-    User user;
-    Room room;
+    private User user;
+    private Room room;
+
+    public RoomAndUser() {
+
+    }
 }
