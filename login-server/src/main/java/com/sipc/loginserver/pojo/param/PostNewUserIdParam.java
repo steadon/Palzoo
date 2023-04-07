@@ -5,11 +5,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class OpenIdParam {
-    private String sessionKey;
+public class PostNewUserIdParam {
+    private Integer userId;
     private String openid;
 
-    public OpenIdParam() {
+    public PostNewUserIdParam() {
 
     }
 }

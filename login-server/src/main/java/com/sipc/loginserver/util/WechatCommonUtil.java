@@ -1,11 +1,10 @@
 package com.sipc.loginserver.util;
 
-import lombok.Data;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Data
+
 @Component
 public class WechatCommonUtil implements InitializingBean {
     @Value("${wechat.appId}")
@@ -17,8 +16,8 @@ public class WechatCommonUtil implements InitializingBean {
     public static String APP_SECRET;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        APP_ID = appId;
-        APP_SECRET = appSecret;
+    public void afterPropertiesSet() {
+        APP_ID = this.appId;
+        APP_SECRET = this.appSecret;
     }
 }

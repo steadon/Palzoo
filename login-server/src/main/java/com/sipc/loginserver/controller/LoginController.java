@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/sign")
 public class LoginController {
-
     private final LoginService loginService;
 
     @Autowired
