@@ -19,6 +19,12 @@ spring:
       server-addr: ${remote-host}:8849
 
 mybatis-plus:
-  mapper-locations: classpath:/mapper/*.xml
-  configuration:
-    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.sipc.chatserver.pojo.domain
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    cache:
+      enabled: true # 开启二级缓存
