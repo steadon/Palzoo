@@ -52,3 +52,7 @@ mybatis-plus:
 logging:
   level:
     com.sipc.mmtbackend.mapper: debug
+
+wechat:
+  appId: wx9a3b6323352027a1
+  appSecret: 2bd4c9a11a48eb44735a46f71f09ed02
