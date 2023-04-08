@@ -10,19 +10,23 @@ import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
+import com.sipc.userserver.util.WechatCommonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class UserInfoServiceImpl implements UserInfoService {
-
+    private final WechatCommonUtil wechatCommonUtil;
     private final UserInfoMapper userInfoMapper;
     private final AcaMajorMapper acaMajorMapper;
 
     @Autowired
-    public UserInfoServiceImpl(UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper) {
+    public UserInfoServiceImpl(WechatCommonUtil wechatCommonUtil, UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper) {
+        this.wechatCommonUtil = wechatCommonUtil;
         this.userInfoMapper = userInfoMapper;
         this.acaMajorMapper = acaMajorMapper;
     }
@@ -55,17 +59,23 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
-     * @param param 新用户的信息
+     * @param param 新用户的 userID 与 openID
      * @return 处理结果
      */
     @Override
     public CommonResult<Null> postNewUserInfo(PostNewUserIdParam param) {
         UserInfo ifexist = userInfoMapper.selectById(param.getUserId());
         if (ifexist != null)
-            return CommonResult.fail("用户隐已存在");
+            return CommonResult.fail("用户ID已存在");
+        //获取微信小程序相关常量
+//        String appid = wechatCommonUtil.getAppId();
+//        String secret = wechatCommonUtil.getAppSecret();
+//        String jsCode = param.getCode();
+//        log.info("code:" + jsCode);
+
         UserInfo ui = new UserInfo();
         ui.setUserId(param.getUserId());
-        ui.setUserName(param.getUserName());
+        ui.setUserName("param.getUserName()");
         ui.setCreateTime(LocalDateTime.now());
         ui.setUpdateTime(LocalDateTime.now());
         ui.setIsDeleted((byte) 0);
