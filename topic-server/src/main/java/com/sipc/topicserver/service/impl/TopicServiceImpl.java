@@ -14,6 +14,7 @@ import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.mic.result.GetUserInfoResult;
 import com.sipc.topicserver.pojo.dto.param.*;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
+import com.sipc.topicserver.pojo.dto.result.UserInfo;
 import com.sipc.topicserver.pojo.dto.result.Waterfall;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
 import com.sipc.topicserver.service.TopicService;
@@ -25,10 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author o3141
@@ -86,7 +84,7 @@ public class TopicServiceImpl implements TopicService {
         Map<String, String> screen = searchParam.getScreen();
 
         //查询值
-        List<Integer> categoryNextIds = new ArrayList<>();
+//        List<Integer> categoryNextIds = new ArrayList<>();
         int numberMinEq = 0;
         int numberMaxEq = 99999;
 
@@ -112,45 +110,15 @@ public class TopicServiceImpl implements TopicService {
                     redisUtil.set("categoryName:" + category, categoryId);
                 }
 
-                screen.remove("category");
                 //输入筛选项
                 screen.put("category_id", categoryId.toString());
-            }
-
-            //单独处理子标签
-
-
-            String categoryNext = screen.get("categoryNext");
-            if (categoryNext != null) {
-                //categoryNext以&为分隔符
-                for (String s : categoryNext.split("&")) {
-
-                    Integer categoryNextId = (Integer)redisUtil.get("categoryNextName:" + s);
-
-                    if (categoryNextId == null) {
-                        CategoryNext name = categoryNextMapper.selectOne(
-                                new QueryWrapper<CategoryNext>()
-                                        .select("id")
-                                        .eq("name", s)
-                                        .last("limit 1")
-                        );
-                        if (name == null) {
-                            log.warn("未查到正确的分类标签id，查询分类标签名称： {}", s);
-                            return CommonResult.fail("分类标签错误");
-                        }
-                        categoryNextId = name.getId();
-                        redisUtil.set("categoryNextName:" + s, categoryNextId);
-                    }
-                    categoryNextIds.add(categoryNextId);
-                }
-                screen.remove("categoryNext");
             }
 
             //单独处理最少人数
             String numberMin = screen.get("numberMin");
 
             if (numberMin != null) {
-                screen.remove("numberMin");
+
                 numberMinEq = Integer.parseInt(numberMin);
             }
 
@@ -158,9 +126,26 @@ public class TopicServiceImpl implements TopicService {
             String numberMax = screen.get("numberMax");
 
             if (numberMax != null) {
-                screen.remove("numberMax");
+
                 numberMaxEq = Integer.parseInt(numberMax);
             }
+
+            screen.remove("category");
+            screen.remove("categoryNext");
+            screen.remove("numberMin");
+            screen.remove("numberMax");
+            if (screen.get("gender") == null) {
+                screen.remove("gender");
+            }
+
+        }
+
+        if (searchParam.getStartTime() == null) {
+            searchParam.setStartTime("1978-09-01 01:01:01");
+        }
+
+        if (searchParam.getEndTime() == null) {
+            searchParam.setEndTime("2033-01-01 01:01:01");
         }
 
         if (searchParam.getLastTime() == null) {
@@ -171,42 +156,24 @@ public class TopicServiceImpl implements TopicService {
         LocalDateTime nextTime = LocalDateTime.now();
 
 
-        List<Post> postList = new ArrayList<>();
+        List<Post> postList;
 
         //如果没有子标签
-        if (categoryNextIds.isEmpty()) {
-            postList = postMapper.selectList(
-                    new QueryWrapper<Post>()
-                            .allEq(screen)
-                            .lt("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
-                            .ge("end_time", LocalDateTime.now())
-                            .ge("go_time", LocalDateTime.parse(searchParam.getStartTime(),
-                                    Constant.dateTimeFormatter))
-                            .lt("go_time", LocalDateTime.parse(searchParam.getEndTime(),
-                                    Constant.dateTimeFormatter))
-                            .ge("number", numberMinEq)
-                            .le("number", numberMaxEq)
-                            .orderByDesc("created_time")
-                            .last("limit 10")
-            );
-        }
-        else {
-            postList = postMapper.selectList(
-                    new QueryWrapper<Post>()
-                            .allEq(screen)
-                            .in("category_next_id", categoryNextIds)
-                            .lt("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
-                            .ge("end_time", LocalDateTime.now().toEpochSecond(Constant.zoneOffset))
-                            .ge("go_time", LocalDateTime.parse(searchParam.getStartTime(),
-                                    Constant.dateTimeFormatter))
-                            .lt("go_time", LocalDateTime.parse(searchParam.getEndTime(),
-                                    Constant.dateTimeFormatter))
-                            .ge("number", numberMinEq)
-                            .le("number", numberMaxEq)
-                            .orderByDesc("created_time")
-                            .last("limit 10")
-            );
-        }
+
+        postList = postMapper.selectList(
+                new QueryWrapper<Post>()
+                        .allEq(screen)
+                        .lt("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
+                        .ge("go_time", LocalDateTime.parse(searchParam.getStartTime(),
+                                Constant.dateTimeFormatter))
+                        .lt("go_time", LocalDateTime.parse(searchParam.getEndTime(),
+                                Constant.dateTimeFormatter))
+                        .ge("number", numberMinEq)
+                        .le("number", numberMaxEq)
+                        .orderByDesc("created_time")
+                        .last("limit 10")
+        );
+
 
         //循环填充内容
         for (Post post : postList) {
@@ -299,18 +266,23 @@ public class TopicServiceImpl implements TopicService {
             return CommonResult.fail("操作异常");
         }
 
+        UserInfo userInfo = new UserInfo();
+
+        userInfo.setName(author.getUsername());
+        userInfo.setGender(author.getGender());
+        userInfo.setYear(20);
+        userInfo.setSchool("天津理工大学");
+
         //拼装数据
         DetailResult result = new DetailResult();
 
         result.setTitle(post.getTitle());
-        result.setBrief(post.getBrief());
         result.setContent(post.getContent());
-        result.setAuthorName(author.getUsername());
+        result.setAuthor(userInfo);
         result.setWatchNum(watchNum.intValue());
-        result.setStopTime(post.getGoTime().format(Constant.dateTimeFormatter));
-        result.setStartTime(post.getStartTime().format(Constant.dateTimeFormatter));
-        result.setEndTime(post.getEndTime().format(Constant.dateTimeFormatter));
+        result.setGoTime(post.getGoTime().format(Constant.dateTimeFormatter));
         result.setIsFinish(post.getIsFinish());
+        result.setNowNum(3);
 
         return CommonResult.success(result);
     }
@@ -370,7 +342,6 @@ public class TopicServiceImpl implements TopicService {
         *
         */
 
-
         int update = postMapper.update(new Post(),
                 new UpdateWrapper<Post>()
                         .eq("id", deleteParam.getPostId())
@@ -383,6 +354,9 @@ public class TopicServiceImpl implements TopicService {
                     update, deleteParam.getPostId(), deleteParam.getAuthorId());
             return CommonResult.fail("删除失败");
         }
+
+        //更新了is_deleted字段，删除redis缓存
+        redisUtil.remove("postId:" + deleteParam.getPostId());
 
         log.info("删除帖子操作成功， 删除帖子id： {}， 操作人id： {}", deleteParam.getPostId(), deleteParam.getAuthorId());
 
@@ -445,20 +419,20 @@ public class TopicServiceImpl implements TopicService {
         }
 
         //获取category_next_name
-        String categoryNextName = (String)redisUtil.get("categoryNextId:" + post.getCategoryNextId());
-        if (categoryNextName == null) {
-            CategoryNext categoryNext = categoryNextMapper.selectOne(new QueryWrapper<CategoryNext>()
-                    .eq("id", post.getCategoryNextId())
-                    .last("limit 1")
-            );
-            if (categoryNext == null) {
-                log.warn("setWaterfall方法查询categoryNext异常，未查找到正确的categoryNext，查询categoryNextId为：{}",
-                        post.getCategoryNextId());
-                return null;
-            }
-            categoryNextName = categoryNext.getName();
-            redisUtil.set("categoryNextId:" + categoryNext.getId(), categoryNextName);
-        }
+//        String categoryNextName = (String)redisUtil.get("categoryNextId:" + post.getCategoryNextId());
+//        if (categoryNextName == null) {
+//            CategoryNext categoryNext = categoryNextMapper.selectOne(new QueryWrapper<CategoryNext>()
+//                    .eq("id", post.getCategoryNextId())
+//                    .last("limit 1")
+//            );
+//            if (categoryNext == null) {
+//                log.warn("setWaterfall方法查询categoryNext异常，未查找到正确的categoryNext，查询categoryNextId为：{}",
+//                        post.getCategoryNextId());
+//                return null;
+//            }
+//            categoryNextName = categoryNext.getName();
+//            redisUtil.set("categoryNextId:" + categoryNext.getId(), categoryNextName);
+//        }
 
 
         Waterfall waterfall = new Waterfall();
@@ -467,9 +441,18 @@ public class TopicServiceImpl implements TopicService {
         waterfall.setTitle(post.getTitle());
 
         waterfall.setCategory(categoryName);
-        waterfall.setCategoryNext(categoryNextName);
+//        waterfall.setCategoryNext(categoryNextName);
+        List<String> categoryNext = new ArrayList<>(Arrays.asList(post.getCategoryNext().split("\\+")));
+        waterfall.setCategoryNext(categoryNext);
 
-        waterfall.setGender(post.getGender());
+        if (post.getGender() == 0) {
+            waterfall.setGender("性别不限");
+        } else if (post.getGender() == 1) {
+            waterfall.setGender("男");
+        } else  if (post.getGender() == 2) {
+            waterfall.setGender("女");
+        }
+
         waterfall.setNumber(post.getNumber());
 
         waterfall.setGoTime(post.getGoTime().format(Constant.dateTimeFormatter));

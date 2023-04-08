@@ -32,7 +32,7 @@ spring:
     publisher-returns: true
   cloud:
     nacos:
-      server-addr: ${localhost}:8848
+      server-addr: ${nacos-server}
 
 
 feign:

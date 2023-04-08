@@ -3,6 +3,7 @@ package com.sipc.controlserver.pojo.param.topicServer;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author o3141
@@ -12,22 +13,22 @@ import java.io.Serializable;
 @Data
 public class SubmitParam implements Serializable {
 
-
     private String title;
 
     private String category;
 
-    private String brief;
+    private List<String> categoryNext;
 
     private String context;
 
-    private String stopTime;
+    private Integer gender;
+
+    private Integer number;
+
+    private String goTime;
 
     //LocalDateTime不可以，HttpMessageNotReadableException，need additional information such as an offset or time-zone
     // (see class Javadocs); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException
 
-    private String startTime;
-
-    private String endTime;
 
 }

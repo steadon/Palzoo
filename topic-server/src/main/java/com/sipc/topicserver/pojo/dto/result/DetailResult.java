@@ -12,19 +12,15 @@ public class DetailResult {
 
     private String title;
 
-    private String brief;
-
     private String content;
 
-    private String authorName;
+    private UserInfo author;
 
     private Integer watchNum;
 
-    private String stopTime;
+    private String goTime;
 
-    private String startTime;
-
-    private String endTime;
+    private Integer nowNum;
 
     private Byte isFinish;
 
