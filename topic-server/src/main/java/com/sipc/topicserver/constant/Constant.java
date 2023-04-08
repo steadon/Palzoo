@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class Constant {
 
+    //ofPattern("yyyy-MM-dd HH:mm:ss")
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static final ZoneOffset zoneOffset = ZoneOffset.ofHours(8);

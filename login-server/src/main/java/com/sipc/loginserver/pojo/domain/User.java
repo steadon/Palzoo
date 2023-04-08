@@ -1,9 +1,6 @@
 package com.sipc.loginserver.pojo.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -67,6 +64,7 @@ public class User implements Serializable {
     /**
      * 软删除
      */
+    @TableLogic
     @TableField("is_deleted")
     private Byte isDeleted;
 

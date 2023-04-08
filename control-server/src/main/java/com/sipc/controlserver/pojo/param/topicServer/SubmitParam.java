@@ -5,11 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * ClassName SubmitParam
- * Description submit的参数类
- * Author o3141
- * Date 2023/4/3 21:34
- * Version 1.0
+ * @author o3141
+ * @since 2023/4/3 21:34
+ * @version 1.0
  */
 @Data
 public class SubmitParam implements Serializable {

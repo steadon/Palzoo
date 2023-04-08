@@ -2,6 +2,7 @@ server:
   port: 11530
 
 localhost: 43.142.146.75
+nacos-server: 43.143.162.177:8849
 
 spring:
   application:
@@ -31,7 +32,7 @@ spring:
     publisher-returns: true
   cloud:
     nacos:
-      server-addr: 43.143.162.177:8849
+      server-addr: ${localhost}:8848
 
 
 feign:

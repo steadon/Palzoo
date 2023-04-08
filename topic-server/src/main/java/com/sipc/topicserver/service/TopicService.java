@@ -1,4 +1,4 @@
-package com.sipc.topicserver.server;
+package com.sipc.topicserver.service;
 
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.param.*;
@@ -12,7 +12,7 @@ import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
  * Date 2023/4/3 22:08
  * Version 1.0
  */
-public interface TopicServer {
+public interface TopicService {
 
     CommonResult<String> submit(SubmitParam submitParam);
 

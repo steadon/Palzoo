@@ -13,7 +13,7 @@ import java.util.Collections;
 
 /**
  * @author tzih
- * &#064;date  2023.03.20
+ * @since 2023.03.20
  */
 
 public class CodeGeneratorTest {

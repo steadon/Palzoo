@@ -91,8 +91,19 @@ public class RedisUtil {
         return result;
     }
 
+    public Long incrWatchNum(final String key, Long defaultValue) {
 
-    public Long incr(final String key, Long delta) {
+        //判断有没有watch_num字段
+        Object o = this.get(key);
+        if (o == null) {
+            return this.incrLong(key, defaultValue);
+        }
+        else {
+            return redisTemplate.opsForValue().increment(key);
+        }
+    }
+
+    public Long incrLong(final String key, Long delta) {
         if(delta<0){
             throw new RuntimeException("递增因子必须大于0");
         }

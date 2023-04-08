@@ -7,5 +7,5 @@ import com.sipc.loginserver.pojo.param.LevelParam;
 public interface CheckService {
     CommonResult<LevelParam> checkRole(String openid);
 
-    User getUser(String openid);
+    User checkUser(String openid);
 }

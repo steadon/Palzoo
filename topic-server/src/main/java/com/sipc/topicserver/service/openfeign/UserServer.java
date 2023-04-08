@@ -1,4 +1,4 @@
-package com.sipc.topicserver.server.openfeign;
+package com.sipc.topicserver.service.openfeign;
 
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.mic.result.GetUserInfoResult;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("user-server")
 public interface UserServer {
 
-    @GetMapping("/user/info/getall")
+    @GetMapping("/user/info/get")
     CommonResult<GetUserInfoResult> getUserInfo(@RequestParam("userId") Integer uid);
 
 }
