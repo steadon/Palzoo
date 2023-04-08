@@ -4,10 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sipc.topicserver.config.DirectRabbitConfig;
 import com.sipc.topicserver.constant.Constant;
 import com.sipc.topicserver.mapper.CategoryMapper;
-import com.sipc.topicserver.mapper.CategoryNextMapper;
 import com.sipc.topicserver.mapper.PostMapper;
 import com.sipc.topicserver.pojo.domain.Category;
-import com.sipc.topicserver.pojo.domain.CategoryNext;
 import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.param.SubmitParam;
 import com.sipc.topicserver.util.RedisUtil;
@@ -34,9 +32,6 @@ public class SubmitConsumer {
     private PostMapper postMapper;
 
     @Resource
-    private CategoryNextMapper categoryNextMapper;
-
-    @Resource
     private RedisUtil redisUtil;
 
     @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME)
@@ -60,22 +55,22 @@ public class SubmitConsumer {
         }
 
         //获取子标签id
-        Integer categoryNextId = (Integer)redisUtil.get("categoryNextName:" + submitParam.getCategoryNext());
-
-        if (categoryNextId == null) {
-            CategoryNext name = categoryNextMapper.selectOne(
-                    new QueryWrapper<CategoryNext>()
-                            .select("id")
-                            .eq("name", submitParam.getCategoryNext())
-                            .last("limit 1")
-            );
-            if (name == null) {
-                log.warn("未查到正确的分类标签id，查询分类标签名称： {}", submitParam.getCategory());
-                return;
-            }
-            categoryNextId = name.getId();
-            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
-        }
+//        Integer categoryNextId = (Integer)redisUtil.get("categoryNextName:" + submitParam.getCategoryNext());
+//
+//        if (categoryNextId == null) {
+//            CategoryNext name = categoryNextMapper.selectOne(
+//                    new QueryWrapper<CategoryNext>()
+//                            .select("id")
+//                            .eq("name", submitParam.getCategoryNext())
+//                            .last("limit 1")
+//            );
+//            if (name == null) {
+//                log.warn("未查到正确的分类标签id，查询分类标签名称： {}", submitParam.getCategory());
+//                return;
+//            }
+//            categoryNextId = name.getId();
+//            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
+//        }
 
         Integer authorId = 0;
 
@@ -83,17 +78,27 @@ public class SubmitConsumer {
 
         //设置post类数据
         post.setTitle(submitParam.getTitle());
-        post.setBrief(submitParam.getBrief());
         post.setContent(submitParam.getContext());
         post.setAuthorId(authorId);
         post.setCategoryId(categoryId);
-        post.setCategoryNextId(categoryNextId);
+
+        StringBuilder categoryNext = new StringBuilder();
+        int i = 1;
+        int len = submitParam.getCategoryNext().size();
+        for (String s : submitParam.getCategoryNext()) {
+            if (i < len) {
+                categoryNext.append(s).append("+");
+            } else {
+                categoryNext.append(s);
+            }
+            ++i;
+        }
+
+        post.setCategoryNext(categoryNext.toString());
         post.setGender(submitParam.getGender());
         post.setNumber(submitParam.getNumber());
         post.setIsFinish((byte) 0);
         post.setGoTime(LocalDateTime.parse(submitParam.getGoTime(), Constant.dateTimeFormatter));
-        post.setStartTime(LocalDateTime.parse(submitParam.getStartTime(), Constant.dateTimeFormatter));
-        post.setEndTime(LocalDateTime.parse(submitParam.getEndTime(), Constant.dateTimeFormatter));
         post.setWatchNum(0);
         post.setUpdatedTime(LocalDateTime.now());
         post.setCreatedTime(LocalDateTime.now());

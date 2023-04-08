@@ -2,10 +2,12 @@ package com.sipc.controlserver.pojo.result.topicServer;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * Author o3141
- * Date 2023/4/4 9:33
- * Version 1.0
+ * @author o3141
+ * @since 2023/4/4 9:33
+ * @version 1.0
  */
 @Data
 public class Waterfall {
@@ -16,9 +18,9 @@ public class Waterfall {
 
     private String category;
 
-    private String categoryNext;
+    private List<String> categoryNext;
 
-    private Integer gender;
+    private String gender;
 
     private Integer number;
 

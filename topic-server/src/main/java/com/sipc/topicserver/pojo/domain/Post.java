@@ -16,7 +16,7 @@ import lombok.Setter;
  * </p>
  *
  * @author tzih
- * @since 2023-04-06
+ * @since 2023-04-08
  */
 @Getter
 @Setter
@@ -31,12 +31,6 @@ public class Post implements Serializable {
     @TableField("title")
     private String title;
 
-    /**
-     * 简介
-     */
-    @TableField("brief")
-    private String brief;
-
     @TableField("content")
     private String content;
 
@@ -46,8 +40,8 @@ public class Post implements Serializable {
     @TableField("category_id")
     private Integer categoryId;
 
-    @TableField("category_next_id")
-    private Integer categoryNextId;
+    @TableField("category_next")
+    private String categoryNext;
 
     /**
      * 性别限制 0 不限 1男性 2女性
@@ -69,18 +63,6 @@ public class Post implements Serializable {
      */
     @TableField("go_time")
     private LocalDateTime goTime;
-
-    /**
-     * 组队开始时间
-     */
-    @TableField("start_time")
-    private LocalDateTime startTime;
-
-    /**
-     * 组队结束时间
-     */
-    @TableField("end_time")
-    private LocalDateTime endTime;
 
     @TableField("watch_num")
     private Integer watchNum;
