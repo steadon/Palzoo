@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class PostNewUserIdParam {
     private Integer userId;
-    private String userName;
+    private String openId;
 }
