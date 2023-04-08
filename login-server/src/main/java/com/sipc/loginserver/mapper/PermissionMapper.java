@@ -2,7 +2,6 @@ package com.sipc.loginserver.mapper;
 
 import com.sipc.loginserver.pojo.domain.Permission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

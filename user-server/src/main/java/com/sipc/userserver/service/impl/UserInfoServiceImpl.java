@@ -12,7 +12,6 @@ import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
 import com.sipc.userserver.util.WechatCommonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -20,13 +19,13 @@ import java.time.LocalDateTime;
 @Service
 @Slf4j
 public class UserInfoServiceImpl implements UserInfoService {
-    private final WechatCommonUtil wechatCommonUtil;
+//    private final WechatCommonUtil wechatCommonUtil;
     private final UserInfoMapper userInfoMapper;
     private final AcaMajorMapper acaMajorMapper;
 
     @Autowired
     public UserInfoServiceImpl(WechatCommonUtil wechatCommonUtil, UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper) {
-        this.wechatCommonUtil = wechatCommonUtil;
+//        this.wechatCommonUtil = wechatCommonUtil;
         this.userInfoMapper = userInfoMapper;
         this.acaMajorMapper = acaMajorMapper;
     }
@@ -63,7 +62,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 处理结果
      */
     @Override
-    public CommonResult<Null> postNewUserInfo(PostNewUserIdParam param) {
+    public CommonResult<String> postNewUserInfo(PostNewUserIdParam param) {
         UserInfo ifexist = userInfoMapper.selectById(param.getUserId());
         if (ifexist != null)
             return CommonResult.fail("用户ID已存在");
@@ -90,7 +89,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 处理结果
      */
     @Override
-    public CommonResult<Null> dropUserInfo(DropUserInfoParam param) {
+    public CommonResult<String> dropUserInfo(DropUserInfoParam param) {
         int i = userInfoMapper.deleteById(param.getUserId());
         if (i != 1)
             return CommonResult.fail("系统错误");
@@ -102,7 +101,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 处理结果
      */
     @Override
-    public CommonResult<Null> UpdateUserInfo(UpdateUserInfoParam param) {
+    public CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param) {
         UserInfo old = userInfoMapper.selectById(param.getUserId());
         if (old == null)
             return CommonResult.fail("用户不存在");
