@@ -465,7 +465,7 @@ public class TopicServiceImpl implements TopicService {
 
         waterfall.setPostId(post.getId());
         waterfall.setTitle(post.getTitle());
-        waterfall.setBrief(post.getBrief());
+
         waterfall.setCategory(categoryName);
         waterfall.setCategoryNext(categoryNextName);
 
