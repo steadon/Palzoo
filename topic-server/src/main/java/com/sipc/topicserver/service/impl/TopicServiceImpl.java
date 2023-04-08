@@ -212,13 +212,13 @@ public class TopicServiceImpl implements TopicService {
         for (Post post : postList) {
 
             //redis获取用户信息
-            GetUserInfoResult author = this.getAuthor(post.getAuthorId());
-            if (author == null) {
-                return CommonResult.fail("操作错误，无用户");
-            }
+//            GetUserInfoResult author = this.getAuthor(post.getAuthorId());
+//            if (author == null) {
+//                return CommonResult.fail("操作错误，无用户");
+//            }
 
             //组装帖子信息
-            waterfalls.add(setWaterfall(post, author));
+            waterfalls.add(setWaterfall(post));
 
             nextTime = post.getCreatedTime();
         }
@@ -331,12 +331,12 @@ public class TopicServiceImpl implements TopicService {
         LocalDateTime nextTime = LocalDateTime.now();
 
         //redis获取用户信息
-        GetUserInfoResult author = this.getAuthor(authorId);
-
-        if (author == null) {
-            log.warn("作者帖子页异常，获取帖子作者失败，查询作者id： {}",authorId);
-            return CommonResult.fail("操作异常");
-        }
+//        GetUserInfoResult author = this.getAuthor(authorId);
+//
+//        if (author == null) {
+//            log.warn("作者帖子页异常，获取帖子作者失败，查询作者id： {}",authorId);
+//            return CommonResult.fail("操作异常");
+//        }
 
         //循环填充内容
         for (Post post : postMapper.selectList(
@@ -347,7 +347,7 @@ public class TopicServiceImpl implements TopicService {
         )) {
 
             //组装帖子信息
-            waterfalls.add(setWaterfall(post, author));
+            waterfalls.add(setWaterfall(post));
 
             nextTime = post.getCreatedTime();
         }
@@ -427,7 +427,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     //拼装waterfall
-    private Waterfall setWaterfall(Post post, GetUserInfoResult author) {
+    private Waterfall setWaterfall(Post post) {
 
         //获取category_name
         String categoryName = (String)redisUtil.get("categoryId:" + post.getCategoryId());
@@ -468,13 +468,11 @@ public class TopicServiceImpl implements TopicService {
         waterfall.setBrief(post.getBrief());
         waterfall.setCategory(categoryName);
         waterfall.setCategoryNext(categoryNextName);
-        waterfall.setAuthorName(author.getUsername());
+
         waterfall.setGender(post.getGender());
         waterfall.setNumber(post.getNumber());
-        waterfall.setWatchNum(post.getWatchNum());
+
         waterfall.setGoTime(post.getGoTime().format(Constant.dateTimeFormatter));
-        waterfall.setStartTime(post.getStartTime().format(Constant.dateTimeFormatter));
-        waterfall.setEndTime(post.getEndTime().format(Constant.dateTimeFormatter));
 
         return  waterfall;
     }

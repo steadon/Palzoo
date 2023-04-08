@@ -16,14 +16,14 @@ public class Waterfall {
 
     private String brief;
 
-    private String authorName;
+    private String category;
 
-    private Integer watchNum;
+    private String categoryNext;
 
-    private String stopTime;
+    private Integer gender;
 
-    private String startTime;
+    private Integer number;
 
-    private String endTime;
+    private String goTime;
 
 }

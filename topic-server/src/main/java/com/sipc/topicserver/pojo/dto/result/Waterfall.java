@@ -20,18 +20,10 @@ public class Waterfall {
 
     private String categoryNext;
 
-    private String authorName;
-
     private Integer gender;
 
     private Integer number;
-    
-    private Integer watchNum;
 
     private String goTime;
-
-    private String startTime;
-
-    private String endTime;
 
 }
