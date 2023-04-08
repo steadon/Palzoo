@@ -2,10 +2,14 @@ server:
   port: 11520
 
 localhost: 43.142.146.75
+nacos-server: 43.143.162.177:8849
 
 spring:
   application:
     name: topic-server
+  mvc:
+    converters:
+      preferred-json-mapper: jackson
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${localhost}:3306/tjut_wall_topic_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
@@ -32,13 +36,15 @@ spring:
 
   cloud:
     nacos:
-      server-addr: 43.143.162.177:8849
+      server-addr: ${localhost}:8848
 
 feign:
   client:
     config:
       default:
         loggerLevel: full
+#        connect-timeout: 10000
+#        read-timeout: 10000
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml
@@ -51,6 +57,7 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 
+
 #swagger:
 #  enable: true
 #  application-name: ${spring.application.name}
@@ -60,4 +67,4 @@ mybatis-plus:
 
 logging:
   level:
-    com.sipc.mmtbackend.mapper: debug
+    com.sipc.topicserver.mapper: debug

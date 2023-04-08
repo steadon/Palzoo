@@ -1,9 +1,6 @@
 package com.sipc.topicserver.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -11,12 +8,19 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 public class DirectRabbitConfig {
 
     public static final String QUEUE_NAME = "TopicRequestQueue"; //队列名称
     public static final String EXCHANGE_NAME = "TopicRequestExchange"; //交换器名称
     public static final String ROUTING_KEY = "TopicRequestRouting"; //路由键
+
+    public static final String SUBMIT_DEAD_QUEUE_NAME = "SubmitRequestDeadQueue";
+    public static final String SUBMIT_DEAD_EXCHANGE_NAME = "SubmitRequestDeadExchange";
+    public static final String SUBMIT_DEAD_ROUTING_KEY = "SubmitRequestDeadRouting";
 
     @Bean
     public RabbitTemplate createRabbitTemplate(ConnectionFactory connectionFactory) {
@@ -41,6 +45,8 @@ public class DirectRabbitConfig {
             System.out.println("回应信息：" + returnedMessage.getReplyText());
             System.out.println("交换机：" + returnedMessage.getExchange());
             System.out.println("路由键：" + returnedMessage.getRoutingKey());
+            //指定一个死信队列消费消息
+//            rabbitTemplate.convertAndSend(SUBMIT_DEAD_EXCHANGE_NAME, SUBMIT_DEAD_ROUTING_KEY, returnedMessage);
         });
 
         rabbitTemplate.setMessageConverter(messageConverter());
@@ -61,7 +67,8 @@ public class DirectRabbitConfig {
           当没有生产者或者消费者使用此队列，该队列会自动删除。
           Map<String, Object> arguments：设置队列的其他一些参数。
          */
-        return new Queue(QUEUE_NAME, true, false, false, null);
+
+        return new Queue(QUEUE_NAME, true, false, false);
     }
 
     //Direct交换机 起名：NodeRequestQueue
@@ -74,6 +81,7 @@ public class DirectRabbitConfig {
           持久化可以将交换器存盘，在服务器重启的时候不会丢失相关信息。
           boolean autoDelete：设置是否自动删除，为 true 则设置队列为自动删除，
          */
+
         return new DirectExchange(EXCHANGE_NAME, true, false);
     }
 
@@ -89,6 +97,26 @@ public class DirectRabbitConfig {
         return new DirectExchange("lonelyExchange");
     }
 
+    @Bean
+    public DirectExchange deadRequestExchange() {
+        return new DirectExchange(SUBMIT_DEAD_EXCHANGE_NAME, true, false);
+    }
+
+    @Bean
+    public Queue deadRequestQueue() {
+
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("x-dead-letter-exchange", SUBMIT_DEAD_EXCHANGE_NAME);
+        arguments.put("x-dead-letter-routing-key", SUBMIT_DEAD_ROUTING_KEY);
+
+        return new Queue(SUBMIT_DEAD_QUEUE_NAME, true, false, false, arguments);
+    }
+
+    @Bean
+    public Binding deadBindingDirect() {
+
+        return BindingBuilder.bind(deadRequestQueue()).to(deadRequestExchange()).with(SUBMIT_DEAD_ROUTING_KEY);
+    }
     @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();

@@ -5,18 +5,15 @@ import com.sipc.controlserver.pojo.param.topicServer.*;
 import com.sipc.controlserver.pojo.result.topicServer.DetailResult;
 import com.sipc.controlserver.pojo.result.topicServer.WaterfallResult;
 import com.sipc.controlserver.service.feign.TopicServer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
 
 /**
- * ClassName TopicController
- * Description controller里topicController
  * @author o3141
- * Date 2023/4/5 9:19
- * Version 1.0
+ * @since 2023/4/5 9:19
+ * @version 1.0
  */
 @RestController()
 @RequestMapping("/controller/topic")
