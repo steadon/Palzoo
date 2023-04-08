@@ -40,10 +40,6 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         Jackson2JsonRedisSerializer serializer = new Jackson2JsonRedisSerializer(Object.class);
 
 
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-//        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-
         serializer.setObjectMapper(redisObjectMapper());
 
         template.setValueSerializer(serializer);
@@ -55,18 +51,6 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10));
-
-//        // 设置一个初始化的缓存空间set集合
-//        Set<String> cacheNames =  new HashSet<>();
-//        cacheNames.add("default");
-//
-//        // 对每个缓存空间应用不同的配置
-//        Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
-//        configMap.put("default",  config.entryTtl(Duration.ofSeconds(5)));
-//        RedisCacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory)
-//                .initialCacheNames(cacheNames)
-//                .withInitialCacheConfigurations(configMap)
-//                .build();
 
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
                 .cacheDefaults(config).build();
@@ -85,10 +69,10 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
         // ObjectMapper 在序列化时默认会将单个对象包装在一个包含该对象的数组中,可能会导致序列化json对象为json数组
-        /**
-        *ObjectMapper 被配置为启用默认类型，并且该类型是非最终类型，因此它会将序列化的对象的类型信息包含在序列化后的JSON字符串中。
-         * 因此，在序列化单个对象时，它可能会将对象包装在一个数组中，以便在反序列化时能够还原对象的类型信息。
-         * */
+        /*
+        ObjectMapper 被配置为启用默认类型，并且该类型是非最终类型，因此它会将序列化的对象的类型信息包含在序列化后的JSON字符串中。
+          因此，在序列化单个对象时，它可能会将对象包装在一个数组中，以便在反序列化时能够还原对象的类型信息。
+          */
         objectMapper.activateDefaultTyping(
                 LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL,
@@ -111,10 +95,8 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
 //        objectMapper.disableDefaultTyping();
         //配置Jackson2JsonRedisSerializer序列化策略
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-//        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 
 
-//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;
     }
 
