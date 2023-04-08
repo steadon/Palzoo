@@ -4,7 +4,7 @@ import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.param.*;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
-import com.sipc.topicserver.server.TopicServer;
+import com.sipc.topicserver.service.TopicService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 public class TopicController {
 
     @Resource
-    private TopicServer topicServer;
+    private TopicService topicService;
 
     
     @GetMapping("/ping")
@@ -33,7 +33,7 @@ public class TopicController {
     public CommonResult<String> submit(@RequestBody SubmitParam submitParam) {
 
         //将消息携带绑定键值：TestDirectRouting 发送到交换机TestDirectExchange
-        return topicServer.submit(submitParam);
+        return topicService.submit(submitParam);
 
 //        return CommonResult.success("提交成功，审核中");
     }
@@ -41,32 +41,32 @@ public class TopicController {
     @PostMapping("/search")
     public CommonResult<WaterfallResult> search(@RequestBody SearchParam searchParam) {
 
-        return topicServer.search(searchParam);
+        return topicService.search(searchParam);
     }
 
     @PostMapping("/finish")
     public CommonResult<String> finish(@RequestBody FinishParam finishParam) {
-        return topicServer.finish(finishParam);
+        return topicService.finish(finishParam);
     }
 
     @GetMapping("/detail")
     public CommonResult<DetailResult> detail(@RequestParam Integer postId) {
-        return topicServer.detail(postId);
+        return topicService.detail(postId);
     }
 
     @GetMapping("/author")
-    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId, @RequestParam Long lastTime) {
-        return topicServer.author(authorId, lastTime);
+    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId, @RequestParam(required = false) Long lastTime) {
+        return topicService.author(authorId, lastTime);
     }
 
     @PostMapping("/delete")
     public CommonResult<String> delete(@RequestBody DeleteParam deleteParam) {
-        return topicServer.delete(deleteParam);
+        return topicService.delete(deleteParam);
     }
 
     @PostMapping("/delay")
     public CommonResult<String> delay(@RequestBody DelayParam delayParam) {
-        return topicServer.delay(delayParam);
+        return topicService.delay(delayParam);
     }
 
 

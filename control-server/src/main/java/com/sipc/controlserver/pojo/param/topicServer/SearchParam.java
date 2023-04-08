@@ -5,11 +5,9 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- * @ClassName SearchParam
- * Description
- * Author o3141
- * Date 2023/4/3 22:55
- * Version 1.0
+ * @author o3141
+ * @since 2023/4/3 22:55
+ * @version 1.0
  */
 @Data
 public class SearchParam {

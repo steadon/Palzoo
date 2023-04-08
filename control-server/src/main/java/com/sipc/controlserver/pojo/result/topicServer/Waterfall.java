@@ -3,8 +3,6 @@ package com.sipc.controlserver.pojo.result.topicServer;
 import lombok.Data;
 
 /**
- * ClassName searchResult
- * Description
  * Author o3141
  * Date 2023/4/4 9:33
  * Version 1.0

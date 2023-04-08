@@ -3,11 +3,9 @@ package com.sipc.topicserver.pojo.dto.result;
 import lombok.Data;
 
 /**
- * ClassName searchResult
- * Description
- * Author o3141
- * Date 2023/4/4 9:33
- * Version 1.0
+ * @author o3141
+ * @since 2023/4/4 9:33
+ * @version 1.0
  */
 @Data
 public class Waterfall {
@@ -18,11 +16,19 @@ public class Waterfall {
 
     private String brief;
 
+    private String category;
+
+    private String categoryNext;
+
     private String authorName;
+
+    private Integer gender;
+
+    private Integer number;
     
     private Integer watchNum;
 
-    private String stopTime;
+    private String goTime;
 
     private String startTime;
 

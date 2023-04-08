@@ -1,6 +1,9 @@
 package com.sipc.topicserver.pojo.dto.mic.result;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * ClassName GetUserInfoResult
@@ -10,11 +13,16 @@ import lombok.Data;
  * Version 1.0
  */
 @Data
-public class GetUserInfoResult {
+@AllArgsConstructor
+public class GetUserInfoResult implements Serializable {
 
     private Integer userId;
     private String username;
     private String academy;
     private String major;
+    private String gender;
+    private String phone;
+
+    public GetUserInfoResult() {}
 
 }

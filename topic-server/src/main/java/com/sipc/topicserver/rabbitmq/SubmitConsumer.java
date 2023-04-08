@@ -2,25 +2,26 @@ package com.sipc.topicserver.rabbitmq;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sipc.topicserver.config.DirectRabbitConfig;
+import com.sipc.topicserver.constant.Constant;
 import com.sipc.topicserver.mapper.CategoryMapper;
+import com.sipc.topicserver.mapper.CategoryNextMapper;
 import com.sipc.topicserver.mapper.PostMapper;
 import com.sipc.topicserver.pojo.domain.Category;
+import com.sipc.topicserver.pojo.domain.CategoryNext;
 import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.param.SubmitParam;
+import com.sipc.topicserver.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
- * ClassName SubmitConsumer
- * Description
- * Author o3141
- * Date 2023/4/4 18:59
- * Version 1.0
+ * @author o3141
+ * @since 2023/4/4 18:59
+ * @version 1.0
  */
 @Component
 @Slf4j
@@ -32,18 +33,48 @@ public class SubmitConsumer {
     @Resource
     private PostMapper postMapper;
 
+    @Resource
+    private CategoryNextMapper categoryNextMapper;
+
+    @Resource
+    private RedisUtil redisUtil;
+
     @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME)
     public void consumer(SubmitParam submitParam) {
 
         //获取分类id
-        Category category = categoryMapper.selectOne(
-                new QueryWrapper<Category>()
-                        .eq("name", submitParam.getCategory())
-                        .last("limit 1")
-        );
+        Integer categoryId = (Integer)redisUtil.get("categoryName:" + submitParam.getCategory());
 
-        if (category == null) {
-            return;
+        if (categoryId == null) {
+            Category category1 = categoryMapper.selectOne(
+                    new QueryWrapper<Category>()
+                            .eq("name", submitParam.getCategory())
+                            .last("limit 1")
+            );
+            if (category1 == null) {
+                log.warn("未查到正确的分类id，查询分类名称： {}", submitParam.getCategory());
+                return;
+            }
+            categoryId = category1.getId();
+            redisUtil.set("categoryName:" + submitParam.getCategory(), categoryId);
+        }
+
+        //获取子标签id
+        Integer categoryNextId = (Integer)redisUtil.get("categoryNextName:" + submitParam.getCategoryNext());
+
+        if (categoryNextId == null) {
+            CategoryNext name = categoryNextMapper.selectOne(
+                    new QueryWrapper<CategoryNext>()
+                            .select("id")
+                            .eq("name", submitParam.getCategoryNext())
+                            .last("limit 1")
+            );
+            if (name == null) {
+                log.warn("未查到正确的分类标签id，查询分类标签名称： {}", submitParam.getCategory());
+                return;
+            }
+            categoryNextId = name.getId();
+            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
         }
 
         Integer authorId = 0;
@@ -55,11 +86,14 @@ public class SubmitConsumer {
         post.setBrief(submitParam.getBrief());
         post.setContent(submitParam.getContext());
         post.setAuthorId(authorId);
-        post.setCategoryId(category.getId());
+        post.setCategoryId(categoryId);
+        post.setCategoryNextId(categoryNextId);
+        post.setGender(submitParam.getGender());
+        post.setNumber(submitParam.getNumber());
         post.setIsFinish((byte) 0);
-        post.setStopTime(LocalDateTime.parse(submitParam.getStopTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        post.setStartTime(LocalDateTime.parse(submitParam.getStartTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        post.setEndTime(LocalDateTime.parse(submitParam.getEndTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        post.setGoTime(LocalDateTime.parse(submitParam.getGoTime(), Constant.dateTimeFormatter));
+        post.setStartTime(LocalDateTime.parse(submitParam.getStartTime(), Constant.dateTimeFormatter));
+        post.setEndTime(LocalDateTime.parse(submitParam.getEndTime(), Constant.dateTimeFormatter));
         post.setWatchNum(0);
         post.setUpdatedTime(LocalDateTime.now());
         post.setCreatedTime(LocalDateTime.now());
@@ -69,8 +103,10 @@ public class SubmitConsumer {
         int insert = postMapper.insert(post);
 
         if (insert != 1) {
-            log.error("数据库操作异常，帖子提交操作失败，插入数据数：{}", insert);
+            log.error("数据库操作异常，帖子提交操作失败，插入数据数：{}, 插入帖子为： {}", insert, post);
         }
+
+        log.info("成功提交帖子， 帖子数据为： {}", post);
 
     }
 

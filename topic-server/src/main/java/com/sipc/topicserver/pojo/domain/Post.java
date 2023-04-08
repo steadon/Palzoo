@@ -16,7 +16,7 @@ import lombok.Setter;
  * </p>
  *
  * @author tzih
- * @since 2023-04-05
+ * @since 2023-04-06
  */
 @Getter
 @Setter
@@ -49,15 +49,36 @@ public class Post implements Serializable {
     @TableField("category_next_id")
     private Integer categoryNextId;
 
+    /**
+     * 性别限制 0 不限 1男性 2女性
+     */
+    @TableField("gender")
+    private Integer gender;
+
+    /**
+     * 人数限制
+     */
+    @TableField("number")
+    private Integer number;
+
     @TableField("is_finish")
     private Byte isFinish;
 
-    @TableField("stop_time")
-    private LocalDateTime stopTime;
+    /**
+     * 出发时间
+     */
+    @TableField("go_time")
+    private LocalDateTime goTime;
 
+    /**
+     * 组队开始时间
+     */
     @TableField("start_time")
     private LocalDateTime startTime;
 
+    /**
+     * 组队结束时间
+     */
     @TableField("end_time")
     private LocalDateTime endTime;
 

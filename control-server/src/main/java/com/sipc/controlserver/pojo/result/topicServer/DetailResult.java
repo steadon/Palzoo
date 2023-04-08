@@ -3,11 +3,9 @@ package com.sipc.controlserver.pojo.result.topicServer;
 import lombok.Data;
 
 /**
- * ClassName DetailResult
- * Description
- * Author o3141
- * Date 2023/4/4 14:39
- * Version 1.0
+ * @author o3141
+ * @since 2023/4/4 14:39
+ * @version 1.0
  */
 @Data
 public class DetailResult {
