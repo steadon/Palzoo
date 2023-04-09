@@ -4,6 +4,7 @@ import com.sipc.controlserver.pojo.CommonResult;
 import com.sipc.controlserver.pojo.param.LevelParam;
 import com.sipc.controlserver.pojo.param.OpenIdParam;
 import com.sipc.controlserver.pojo.param.SignInParam;
+import com.sipc.controlserver.pojo.param.User;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,4 +23,7 @@ public interface LoginServer {
 
     @GetMapping("/check/role")
     CommonResult<LevelParam> checkRole(@RequestParam(value = "openid") String openid);
+
+    @GetMapping("/check/user")
+    User getUser(@RequestParam(value = "openid") String openid);
 }
