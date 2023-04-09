@@ -37,6 +37,11 @@ public class SubmitConsumer {
     @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME)
     public void consumer(SubmitParam submitParam) {
 
+        if (submitParam.getCategoryNext() == null) {
+            log.warn("标签分类为空， 参数： {}", submitParam);
+            return;
+        }
+
         //获取分类id
         Integer categoryId = (Integer)redisUtil.get("categoryName:" + submitParam.getCategory());
 

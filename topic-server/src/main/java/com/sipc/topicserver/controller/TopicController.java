@@ -2,6 +2,7 @@ package com.sipc.topicserver.controller;
 
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.param.*;
+import com.sipc.topicserver.pojo.dto.result.DetailNumResult;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
 import com.sipc.topicserver.service.TopicService;
@@ -69,5 +70,9 @@ public class TopicController {
         return topicService.delay(delayParam);
     }
 
+    @GetMapping("/detail/num")
+    public CommonResult<DetailNumResult> detailNum(@RequestParam Integer postId) {
+        return topicService.detailNum(postId);
+    }
 
 }

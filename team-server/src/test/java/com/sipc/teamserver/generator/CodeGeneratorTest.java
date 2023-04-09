@@ -40,7 +40,7 @@ public class CodeGeneratorTest {
                         .xml("mapper.xml")
                         .pathInfo(Collections.singletonMap(OutputFile.xml, "src/main/resources/mapper")))
                 //策略配置,要生成的表的表名
-                .strategyConfig(builder -> builder.addInclude("team")
+                .strategyConfig(builder -> builder.addInclude("team", "vote")
                         //实体类策略配置，enableFileOverride覆盖原文件
                         .entityBuilder().enableLombok().enableTableFieldAnnotation().idType(IdType.AUTO).logicDeleteColumnName("is_deleted").enableFileOverride()
                         //mapper类策略配置
