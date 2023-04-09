@@ -2,6 +2,8 @@ package com.sipc.controlserver.pojo.result.topicServer;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author o3141
  * @since 2023/4/4 14:39
@@ -14,9 +16,17 @@ public class DetailResult {
 
     private String content;
 
+    private String category;
+
+    private List<String> categoryNext;
+
     private UserInfo author;
 
     private Integer watchNum;
+
+    private Integer num;
+
+    private String gender;
 
     private String goTime;
 

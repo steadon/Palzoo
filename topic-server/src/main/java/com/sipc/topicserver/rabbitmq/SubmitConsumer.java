@@ -37,11 +37,6 @@ public class SubmitConsumer {
     @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME)
     public void consumer(SubmitParam submitParam) {
 
-        if (submitParam.getCategoryNext() == null) {
-            log.warn("标签分类为空， 参数： {}", submitParam);
-            return;
-        }
-
         //获取分类id
         Integer categoryId = (Integer)redisUtil.get("categoryName:" + submitParam.getCategory());
 
@@ -60,23 +55,6 @@ public class SubmitConsumer {
         }
 
         //获取子标签id
-//        Integer categoryNextId = (Integer)redisUtil.get("categoryNextName:" + submitParam.getCategoryNext());
-//
-//        if (categoryNextId == null) {
-//            CategoryNext name = categoryNextMapper.selectOne(
-//                    new QueryWrapper<CategoryNext>()
-//                            .select("id")
-//                            .eq("name", submitParam.getCategoryNext())
-//                            .last("limit 1")
-//            );
-//            if (name == null) {
-//                log.warn("未查到正确的分类标签id，查询分类标签名称： {}", submitParam.getCategory());
-//                return;
-//            }
-//            categoryNextId = name.getId();
-//            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
-//        }
-
         Integer authorId = submitParam.getUserId();
 
         Post post = new Post();
@@ -118,7 +96,7 @@ public class SubmitConsumer {
             log.error("数据库操作异常，帖子提交操作失败，插入数据数：{}, 插入帖子为： {}", insert, post);
         }
 
-        log.info("成功提交帖子， 帖子数据为： {}", post);
+        log.info("成功提交帖子， 帖子数据为： {}", post.toString());
 
     }
 
