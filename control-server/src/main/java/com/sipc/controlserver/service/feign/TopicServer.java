@@ -2,6 +2,7 @@ package com.sipc.controlserver.service.feign;
 
 import com.sipc.controlserver.pojo.CommonResult;
 import com.sipc.controlserver.pojo.param.topicServer.*;
+import com.sipc.controlserver.pojo.result.topicServer.DetailNumResult;
 import com.sipc.controlserver.pojo.result.topicServer.DetailResult;
 import com.sipc.controlserver.pojo.result.topicServer.WaterfallResult;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -36,4 +37,7 @@ public interface TopicServer {
 
     @PostMapping("/topic-server/delay")
     CommonResult<String> delay(@RequestBody DelayParam delayParam);
+
+    @GetMapping("/topic-server/detail/num")
+    CommonResult<DetailNumResult> detailNum(@RequestParam(value = "postId") Integer postId);
 }

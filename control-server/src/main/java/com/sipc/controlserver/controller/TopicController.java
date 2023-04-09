@@ -2,6 +2,7 @@ package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
 import com.sipc.controlserver.pojo.param.topicServer.*;
+import com.sipc.controlserver.pojo.result.topicServer.DetailNumResult;
 import com.sipc.controlserver.pojo.result.topicServer.DetailResult;
 import com.sipc.controlserver.pojo.result.topicServer.WaterfallResult;
 import com.sipc.controlserver.service.feign.TopicServer;
@@ -67,6 +68,11 @@ public class TopicController {
     @PostMapping("/delay")
     public CommonResult<String> delay(@RequestBody DelayParam delayParam) {
         return topicServer.delay(delayParam);
+    }
+
+    @GetMapping("/detail/num")
+    public CommonResult<DetailNumResult> detailNum(@RequestParam Integer postId) {
+        return topicServer.detailNum(postId);
     }
 
 }

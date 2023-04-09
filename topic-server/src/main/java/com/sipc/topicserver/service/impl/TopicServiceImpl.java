@@ -13,10 +13,7 @@ import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.mic.result.GetUserInfoResult;
 import com.sipc.topicserver.pojo.dto.param.*;
-import com.sipc.topicserver.pojo.dto.result.DetailResult;
-import com.sipc.topicserver.pojo.dto.result.UserInfo;
-import com.sipc.topicserver.pojo.dto.result.Waterfall;
-import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
+import com.sipc.topicserver.pojo.dto.result.*;
 import com.sipc.topicserver.service.TopicService;
 import com.sipc.topicserver.service.openfeign.UserServer;
 import com.sipc.topicserver.util.RedisUtil;
@@ -163,7 +160,8 @@ public class TopicServiceImpl implements TopicService {
         postList = postMapper.selectList(
                 new QueryWrapper<Post>()
                         .allEq(screen)
-                        .lt("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
+                        .le("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
+                        .ge("go_time", LocalDateTime.now())
                         .ge("go_time", LocalDateTime.parse(searchParam.getStartTime(),
                                 Constant.dateTimeFormatter))
                         .lt("go_time", LocalDateTime.parse(searchParam.getEndTime(),
@@ -233,6 +231,10 @@ public class TopicServiceImpl implements TopicService {
                         .eq("id", postId)
                         .setSql("`watch_num` = `watch_num` + 1")
         );
+        if (update != 1) {
+            log.warn("帖子详细信息接口异常，更新观看人数异常，更新帖子id： {}， 更新数： {}", postId, update);
+            return CommonResult.fail("请求失败");
+        }
 
         //redis里获取post
         Post post = (Post)redisUtil.get("postId:" + postId);
@@ -383,6 +385,22 @@ public class TopicServiceImpl implements TopicService {
         return CommonResult.success("延迟成功");
     }
 
+    @Override
+    public CommonResult<DetailNumResult> detailNum(Integer postId) {
+
+        Post post = postMapper.selectOne(new QueryWrapper<Post>().select("number").eq("id", postId).last("limit 1"));
+
+        if (post == null) {
+            return CommonResult.fail("查询失败");
+        }
+
+        DetailNumResult detailNumResult = new DetailNumResult();
+
+        detailNumResult.setNum(post.getNumber());
+
+        return CommonResult.success(detailNumResult);
+    }
+
     private GetUserInfoResult getAuthor(Integer authorId) {
         //redis获取用户信息
         GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("userId:" + authorId);
@@ -455,8 +473,11 @@ public class TopicServiceImpl implements TopicService {
 
         waterfall.setNumber(post.getNumber());
 
-        waterfall.setGoTime(post.getGoTime().format(Constant.dateTimeFormatter));
+        waterfall.setGoTime(post.getGoTime().format(Constant.getDateTimeFormatterResult));
 
         return  waterfall;
     }
+
+
+
 }
