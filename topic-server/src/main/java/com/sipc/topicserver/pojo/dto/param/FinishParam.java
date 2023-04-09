@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class FinishParam {
 
+    private Integer userId;
+
     private Integer postId;
 
 }
