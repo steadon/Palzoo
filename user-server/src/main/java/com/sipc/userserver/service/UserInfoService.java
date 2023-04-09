@@ -5,15 +5,14 @@ import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
-import org.apache.ibatis.jdbc.Null;
 
 public interface UserInfoService {
 
     CommonResult<GetUserInfoResult> getUserInfo(Integer uid);
 
-    CommonResult<Null> postNewUserInfo(PostNewUserIdParam param);
+    CommonResult<String> postNewUserInfo(PostNewUserIdParam param);
 
-    CommonResult<Null> dropUserInfo(DropUserInfoParam param);
+    CommonResult<String> dropUserInfo(DropUserInfoParam param);
 
-    CommonResult<Null> UpdateUserInfo(UpdateUserInfoParam param);
+    CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param);
 }

@@ -7,7 +7,6 @@ import com.sipc.controlserver.pojo.param.userServer.UpdateUserInfoParam;
 import com.sipc.controlserver.pojo.result.userServer.AcaMajorInfo;
 import com.sipc.controlserver.pojo.result.userServer.GetUserInfoResult;
 import com.sipc.controlserver.service.feign.UserService;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,17 +29,17 @@ public class UserController {
     }
 
     @PostMapping("user/info/postnew")
-    public CommonResult<Null> postNewUserInfo(@RequestBody PostNewUserIdParam param){
+    public CommonResult<String> postNewUserInfo(@RequestBody PostNewUserIdParam param){
         return userService.postNewUserInfo(param);
     }
 
     @PostMapping("user/info/drop")
-    public CommonResult<Null> dropUserInfo(@RequestBody DropUserInfoParam param){
+    public CommonResult<String> dropUserInfo(@RequestBody DropUserInfoParam param){
         return userService.dropUserInfo(param);
     }
 
     @PostMapping("user/info/update")
-    public CommonResult<Null> updateUserInfo(@RequestBody UpdateUserInfoParam param){
+    public CommonResult<String> updateUserInfo(@RequestBody UpdateUserInfoParam param){
         return userService.UpdateUserInfo(param);
     }
     @GetMapping("user/acamajor/get")

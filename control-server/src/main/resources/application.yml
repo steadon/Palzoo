@@ -2,6 +2,7 @@ server:
   port: 11500
 
 localhost: localhost
+nacos-server: 43.143.162.177:8849
 
 remote-host: 43.142.146.75
 
@@ -13,7 +14,7 @@ spring:
     connect-timeout: 10000
   cloud:
     nacos:
-      server-addr: 43.143.162.177:8849
+      server-addr: ${nacos-server}
 
 feign:
   client:

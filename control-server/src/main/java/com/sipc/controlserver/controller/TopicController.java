@@ -17,6 +17,7 @@ import javax.annotation.Resource;
  */
 @RestController()
 @RequestMapping("/controller/topic")
+@CrossOrigin
 public class TopicController {
 
     @Resource
@@ -54,7 +55,7 @@ public class TopicController {
     }
 
     @GetMapping("/author")
-    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId, @RequestParam Long lastTime) {
+    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId, @RequestParam(required = false) Long lastTime) {
         return topicServer.author(authorId, lastTime);
     }
 
