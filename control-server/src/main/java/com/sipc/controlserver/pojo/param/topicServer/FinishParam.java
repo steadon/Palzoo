@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class FinishParam {
 
+    private String openId;
+
     private Integer postId;
 
 }

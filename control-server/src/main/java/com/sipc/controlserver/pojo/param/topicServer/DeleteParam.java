@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class DeleteParam {
 
-    private Integer authorId;
+    private String openId;
 
     private Integer postId;
 

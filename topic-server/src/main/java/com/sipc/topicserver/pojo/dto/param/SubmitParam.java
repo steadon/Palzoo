@@ -13,6 +13,8 @@ import java.util.List;
 @Data
 public class SubmitParam implements Serializable {
 
+    private Integer userId;
+
     private String title;
 
     private String category;

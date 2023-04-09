@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sipc.topicserver.config.DirectRabbitConfig;
 import com.sipc.topicserver.constant.Constant;
 import com.sipc.topicserver.mapper.CategoryMapper;
-import com.sipc.topicserver.mapper.CategoryNextMapper;
 import com.sipc.topicserver.mapper.PostMapper;
 import com.sipc.topicserver.pojo.domain.Category;
-import com.sipc.topicserver.pojo.domain.CategoryNext;
 import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.mic.result.GetUserInfoResult;
@@ -41,9 +39,6 @@ public class TopicServiceImpl implements TopicService {
     @Resource
     public PostMapper postMapper;
 
-    @Resource
-    private CategoryNextMapper categoryNextMapper;
-
     //找不到UserServer的been
     @Resource
     private UserServer userServer;
@@ -53,6 +48,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Resource
     private RabbitTemplate rabbitTemplate;
+
 
     @Override
     public synchronized CommonResult<String> submit(SubmitParam submitParam) {
@@ -197,16 +193,27 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public CommonResult<String> finish(FinishParam finishParam) {
 
-        Integer authorId = 0;
+//        Integer authorId = 0;
 
-        int i = postMapper.update(new Post(),
-                new UpdateWrapper<Post>()
-                        .eq("id", finishParam.getPostId())
-                        .eq("author_id", authorId)
-                        .eq("is_finish", (byte) 0)
-                        .set("is_finish", (byte) 1)
-                        .set("updated_time", LocalDateTime.now())
-        );
+        int i;
+        if (finishParam.getUserId() == 0) {
+            i = postMapper.update(new Post(),
+                    new UpdateWrapper<Post>()
+                            .eq("id", finishParam.getPostId())
+                            .eq("is_finish", (byte) 0)
+                            .set("is_finish", (byte) 1)
+                            .set("updated_time", LocalDateTime.now())
+            );
+        } else {
+            i = postMapper.update(new Post(),
+                    new UpdateWrapper<Post>()
+                            .eq("id", finishParam.getPostId())
+                            .eq("author_id", finishParam.getUserId())
+                            .eq("is_finish", (byte) 0)
+                            .set("is_finish", (byte) 1)
+                            .set("updated_time", LocalDateTime.now())
+            );
+        }
 
         //更新了is_finish字段，删除redis缓存
         redisUtil.remove("postId:" + finishParam.getPostId());
@@ -217,7 +224,7 @@ public class TopicServiceImpl implements TopicService {
         }
 
         log.info("帖子作者结束组队，作者id：{}， 更改帖子id： {}， 更改时间： {}",
-                authorId, finishParam.getPostId(), LocalDateTime.now());
+                finishParam.getUserId(), finishParam.getPostId(), LocalDateTime.now());
 
         return CommonResult.success("更新成功");
     }
@@ -233,7 +240,7 @@ public class TopicServiceImpl implements TopicService {
         );
         if (update != 1) {
             log.warn("帖子详细信息接口异常，更新观看人数异常，更新帖子id： {}， 更新数： {}", postId, update);
-            return CommonResult.fail("请求失败");
+            return CommonResult.fail("浏览请求失败");
         }
 
         //redis里获取post
@@ -254,11 +261,6 @@ public class TopicServiceImpl implements TopicService {
 
         //watch_num原子自增
         Long watchNum = redisUtil.incrWatchNum("postId:" + postId + "watch_num", post.getWatchNum().longValue());
-
-        if (update != 1) {
-            log.error("帖子详情页异常，更新帖子浏览数失败，浏览帖子id： {}", postId);
-            return CommonResult.fail("浏览失败");
-        }
 
         //redis获取用户信息
         GetUserInfoResult author = this.getAuthor(post.getAuthorId());
@@ -343,24 +345,34 @@ public class TopicServiceImpl implements TopicService {
         * 如果业务场景需要支持撤销删除操作，可以在一个单独的表中保存被删除的帖子，而不是直接将 is_deleted 标记为 1。这样可以避免误删的情况，并且在需要恢复数据时也会更加方便。
         *
         */
+        int update ;
+        if (deleteParam.getUserId() == 0) {
+            update = postMapper.update(new Post(),
+                    new UpdateWrapper<Post>()
+                            .eq("id", deleteParam.getPostId())
+                            .eq("is_deleted", 0)
+                            .set("updated_time", LocalDateTime.now())
+                            .set("is_deleted", 1));
+        } else {
+            update = postMapper.update(new Post(),
+                    new UpdateWrapper<Post>()
+                            .eq("id", deleteParam.getPostId())
+                            .eq("author_id", deleteParam.getUserId())
+                            .eq("is_deleted", 0)
+                            .set("updated_time", LocalDateTime.now())
+                            .set("is_deleted", 1));
+        }
 
-        int update = postMapper.update(new Post(),
-                new UpdateWrapper<Post>()
-                        .eq("id", deleteParam.getPostId())
-                        .eq("author_id", deleteParam.getAuthorId())
-                        .eq("is_deleted", 0)
-                        .set("updated_time", LocalDateTime.now())
-                        .set("is_deleted", 1));
         if (update != 1) {
             log.error("删除帖子页错误，更新数异常，更新数：{}， 操作帖子id： {}， 操作人id： {}",
-                    update, deleteParam.getPostId(), deleteParam.getAuthorId());
+                    update, deleteParam.getPostId(), deleteParam.getUserId());
             return CommonResult.fail("删除失败");
         }
 
         //更新了is_deleted字段，删除redis缓存
         redisUtil.remove("postId:" + deleteParam.getPostId());
 
-        log.info("删除帖子操作成功， 删除帖子id： {}， 操作人id： {}", deleteParam.getPostId(), deleteParam.getAuthorId());
+        log.info("删除帖子操作成功， 删除帖子id： {}， 操作人id： {}", deleteParam.getPostId(), deleteParam.getUserId());
 
         return CommonResult.success("删除成功");
     }
@@ -383,22 +395,6 @@ public class TopicServiceImpl implements TopicService {
         log.info("延迟帖子成功， 操作帖子id： {}， 延迟时间： {}" , delayParam.getPostId(), delayParam.getTime());
 
         return CommonResult.success("延迟成功");
-    }
-
-    @Override
-    public CommonResult<DetailNumResult> detailNum(Integer postId) {
-
-        Post post = postMapper.selectOne(new QueryWrapper<Post>().select("number").eq("id", postId).last("limit 1"));
-
-        if (post == null) {
-            return CommonResult.fail("查询失败");
-        }
-
-        DetailNumResult detailNumResult = new DetailNumResult();
-
-        detailNumResult.setNum(post.getNumber());
-
-        return CommonResult.success(detailNumResult);
     }
 
     private GetUserInfoResult getAuthor(Integer authorId) {

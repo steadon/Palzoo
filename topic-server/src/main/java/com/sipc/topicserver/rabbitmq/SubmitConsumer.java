@@ -77,7 +77,10 @@ public class SubmitConsumer {
 //            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
 //        }
 
-        Integer authorId = 0;
+        System.out.println(submitParam.getUserId());
+        log.info("userId:{}",submitParam.getUserId());
+
+        Integer authorId = submitParam.getUserId();
 
         Post post = new Post();
 
