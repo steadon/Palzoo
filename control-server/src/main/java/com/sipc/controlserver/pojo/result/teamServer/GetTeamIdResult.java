@@ -1,0 +1,8 @@
+package com.sipc.controlserver.pojo.result.teamServer;
+
+import lombok.Data;
+
+@Data
+public class GetTeamIdResult {
+    private Integer teamId;
+}
