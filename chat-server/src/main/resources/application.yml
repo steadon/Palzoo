@@ -16,7 +16,7 @@ spring:
     connect-timeout: 10000
   cloud:
     nacos:
-      server-addr: ${remote-host}:8849
+      server-addr: 43.143.162.177:8849
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
@@ -26,5 +26,5 @@ mybatis-plus:
       id-type: auto
       logic-delete-value: 1
       logic-not-delete-value: 0
-    cache:
-      enabled: true # 开启二级缓存
+  configuration:
+    cache-enabled: true

@@ -7,6 +7,7 @@ import com.sipc.loginserver.exception.BusinessException;
 import com.sipc.loginserver.mapper.UserMapper;
 import com.sipc.loginserver.pojo.CommonResult;
 import com.sipc.loginserver.pojo.domain.User;
+import com.sipc.loginserver.pojo.param.DropUserInfoParam;
 import com.sipc.loginserver.pojo.param.OpenIdParam;
 import com.sipc.loginserver.pojo.param.PostNewUserIdParam;
 import com.sipc.loginserver.pojo.param.SignInParam;
@@ -46,11 +47,7 @@ public class LoginServiceImpl implements LoginService {
         log.info("code: " + jsCode);
 
         //拼接 url (此处使用工具类提高代码可读性)
-        String url = UriComponentsBuilder.fromUriString("https://api.weixin.qq.com/sns/jscode2session")
-                .queryParam("appid", appid)
-                .queryParam("secret", secret)
-                .queryParam("js_code", param.getCode())
-                .toUriString();
+        String url = UriComponentsBuilder.fromUriString("https://api.weixin.qq.com/sns/jscode2session").queryParam("appid", appid).queryParam("secret", secret).queryParam("js_code", param.getCode()).toUriString();
 
         //向微信服务器获取 openid 和 session
         RestTemplate restTemplate = new RestTemplate();
@@ -98,6 +95,10 @@ public class LoginServiceImpl implements LoginService {
         //查询用户验证合法性
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("openid", openid));
         if (user == null) throw new BusinessException("该用户不存在或已被删除");
+
+        //远程调用 user-server 删除用户
+        String code = userServer.dropUserInfo(new DropUserInfoParam(user.getId())).getCode();
+        if (!Objects.equals(code, "00000")) throw new BusinessException("user-server删除用户异常");
 
         //软删除该用户
         user.setIsDeleted((byte) 1);
