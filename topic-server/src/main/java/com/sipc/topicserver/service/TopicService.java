@@ -2,6 +2,7 @@ package com.sipc.topicserver.service;
 
 import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.param.*;
+import com.sipc.topicserver.pojo.dto.result.DetailNumResult;
 import com.sipc.topicserver.pojo.dto.result.DetailResult;
 import com.sipc.topicserver.pojo.dto.result.WaterfallResult;
 
@@ -27,5 +28,7 @@ public interface TopicService {
     CommonResult<String> delete(DeleteParam deleteParam);
 
     CommonResult<String> delay(DelayParam delayParam);
+
+    CommonResult<DetailNumResult> detailNum(Integer postId);
 
 }
