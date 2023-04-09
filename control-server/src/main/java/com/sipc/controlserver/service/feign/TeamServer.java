@@ -15,12 +15,9 @@ public interface TeamServer {
     @PostMapping("team-server/team/postVote")
     CommonResult<String> postVote(PostVoteParam param);
     @PostMapping("/team-server/team/postTeam")
-
     CommonResult<PostTeamResult> postTeam(PostTeamParam param);
     @GetMapping("/team-server/team/getTeamInfo")
-
     CommonResult<GetTeamInfoResult> getTeamInfo(Integer id);
     @GetMapping("/team-server/team/getTeamId")
-
     CommonResult<GetTeamIdResult> getTeamId(Integer id);
 }

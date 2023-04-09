@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
 
 @FeignClient(value = "user-server")
-public interface UserService {
+public interface UserServer {
     @GetMapping("/user-server/user/info/get")
     CommonResult<GetUserInfoResult> getUserInfo(Integer uid);
     @PostMapping("/user-server/user/info/postnew")

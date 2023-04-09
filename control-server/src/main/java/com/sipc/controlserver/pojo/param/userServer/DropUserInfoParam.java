@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class DropUserInfoParam {
+    private String openId;
     private Integer userId;
 }
