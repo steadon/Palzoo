@@ -1,6 +1,6 @@
 package com.sipc.teamserver.mapper;
 
-import com.sipc.teamserver.pojo.domain.Team;
+import com.sipc.teamserver.pojo.domain.Vote;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2023-04-09
  */
 @Mapper
-public interface TeamMapper extends BaseMapper<Team> {
+public interface VoteMapper extends BaseMapper<Vote> {
 
 }

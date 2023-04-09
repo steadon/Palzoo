@@ -22,11 +22,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("team")
-public class Team implements Serializable {
+@TableName("vote")
+public class Vote implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 111501L;
+    private static final long serialVersionUID = 111502L;
 
     /**
      * 队伍ID
@@ -35,22 +35,22 @@ public class Team implements Serializable {
     private Integer id;
 
     /**
-     * 帖子ID
+     * 用户ID
      */
-    @TableField("post_id")
-    private Integer postId;
+    @TableField("user_id")
+    private Integer userId;
 
     /**
-     * 开始组队时间
+     * 主题ID
      */
-    @TableField("start_time")
-    private LocalDateTime startTime;
+    @TableField("team_id")
+    private Integer teamId;
 
     /**
-     * 组队截止时间
+     * 是否同意组队1同意0不同意
      */
-    @TableField("end_time")
-    private LocalDateTime endTime;
+    @TableField("vote")
+    private Boolean vote;
 
     /**
      * 创建时间
