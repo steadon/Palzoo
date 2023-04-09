@@ -77,9 +77,6 @@ public class SubmitConsumer {
 //            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
 //        }
 
-        System.out.println(submitParam.getUserId());
-        log.info("userId:{}",submitParam.getUserId());
-
         Integer authorId = submitParam.getUserId();
 
         Post post = new Post();
@@ -92,14 +89,16 @@ public class SubmitConsumer {
 
         StringBuilder categoryNext = new StringBuilder();
         int i = 1;
-        int len = submitParam.getCategoryNext().size();
-        for (String s : submitParam.getCategoryNext()) {
-            if (i < len) {
-                categoryNext.append(s).append("+");
-            } else {
-                categoryNext.append(s);
+        if (submitParam.getCategoryNext() != null) {
+            int len = submitParam.getCategoryNext().size();
+            for (String s : submitParam.getCategoryNext()) {
+                if (i < len) {
+                    categoryNext.append(s).append("+");
+                } else {
+                    categoryNext.append(s);
+                }
+                ++i;
             }
-            ++i;
         }
 
         post.setCategoryNext(categoryNext.toString());
