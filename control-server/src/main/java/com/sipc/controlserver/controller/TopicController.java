@@ -12,12 +12,12 @@ import javax.annotation.Resource;
 
 /**
  * @author o3141
- * @since 2023/4/5 9:19
  * @version 1.0
+ * @since 2023/4/5 9:19
  */
+@CrossOrigin
 @RestController()
 @RequestMapping("/controller/topic")
-@CrossOrigin
 public class TopicController {
 
     @Resource

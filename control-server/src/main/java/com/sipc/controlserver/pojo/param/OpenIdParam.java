@@ -8,4 +8,8 @@ import lombok.Data;
 public class OpenIdParam {
     private String sessionKey;
     private String openid;
+
+    public OpenIdParam(){
+
+    }
 }
