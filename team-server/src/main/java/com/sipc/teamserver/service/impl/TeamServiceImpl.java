@@ -13,7 +13,7 @@ import com.sipc.teamserver.pojo.po.VoteInfo;
 import com.sipc.teamserver.pojo.result.GetTeamIdResult;
 import com.sipc.teamserver.pojo.result.GetTeamInfoResult;
 import com.sipc.teamserver.pojo.result.PostTeamResult;
-import com.sipc.teamserver.pojo.result.topicServer.DetailNumResult;
+import com.sipc.teamserver.pojo.result.topicServer.IsAuthorResult;
 import com.sipc.teamserver.pojo.result.userServer.GetUserInfoResult;
 import com.sipc.teamserver.service.TeamService;
 import com.sipc.teamserver.service.feign.TopicServer;
@@ -147,6 +147,14 @@ public class TeamServiceImpl implements TeamService {
                 .eq("post_id", param.getPostId()));
         if (count != 0)
             return CommonResult.fail("投票已存在，请勿重复发起投票");
+        CommonResult<IsAuthorResult> isAuthor = topicServer.isAuthor(param.getUserId(), param.getPostId());
+        if (!Objects.equals(isAuthor.getCode(), "00000"))
+            isAuthor = topicServer.isAuthor(param.getUserId(), param.getPostId());
+        if (!Objects.equals(isAuthor.getCode(), "00000"))
+            return CommonResult.fail("Check Author From Topic Server Error: " + isAuthor.getMessage());
+        if (!isAuthor.getData().getIsAuthor()) {
+            return CommonResult.fail("您不是帖子作者，无权开启投票");
+        }
         var team = new Team();
         team.setPostId(param.getPostId());
         team.setEndTime(param.getEndTime());
