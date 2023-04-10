@@ -1,6 +1,7 @@
 package com.sipc.teamserver.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sipc.teamserver.constant.Constant;
 import com.sipc.teamserver.mapper.TeamMapper;
 import com.sipc.teamserver.mapper.VoteMapper;
 import com.sipc.teamserver.pojo.CommonResult;
@@ -157,7 +158,7 @@ public class TeamServiceImpl implements TeamService {
         }
         var team = new Team();
         team.setPostId(param.getPostId());
-        team.setEndTime(param.getEndTime());
+        team.setEndTime(LocalDateTime.parse(param.getEndTime(), Constant.dateTimeFormatter));
         team.setStartTime(LocalDateTime.now());
         if (team.getStartTime().isAfter(team.getEndTime()))
             return CommonResult.fail("结束时间早于现在，创建投票失败");

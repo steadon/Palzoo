@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("user/info/get")
-    public CommonResult<GetUserInfoResult> getUserInfo(@RequestParam("openid") String openid) {
+    public CommonResult<GetUserInfoResult> getUserInfo(@RequestParam("openId") String openid, @RequestParam("userId") Integer userId) {
         //鉴权
         try {
             loginServer.checkRole(openid);
@@ -41,7 +41,9 @@ public class UserController {
         }
         //openid 获取 uid
         User user = loginServer.getUser(openid);
-        return userServer.getUserInfo(user.getId());
+        if (userId == 0)
+            userId = user.getId();
+        return userServer.getUserInfo(userId);
     }
 
 //    @PostMapping("user/info/postnew")
