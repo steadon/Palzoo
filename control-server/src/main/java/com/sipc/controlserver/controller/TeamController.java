@@ -1,7 +1,6 @@
 package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
-import com.sipc.controlserver.pojo.param.OpenIdParam;
 import com.sipc.controlserver.pojo.param.User;
 import com.sipc.controlserver.pojo.param.teamServer.PostTeamParam;
 import com.sipc.controlserver.pojo.param.teamServer.PostVoteParam;
