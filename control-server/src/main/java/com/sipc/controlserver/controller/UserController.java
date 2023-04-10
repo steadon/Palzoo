@@ -44,33 +44,33 @@ public class UserController {
         return userServer.getUserInfo(user.getId());
     }
 
-    @PostMapping("user/info/postnew")
-    public CommonResult<String> postNewUserInfo(@RequestBody PostNewUserIdParam param) {
-        //鉴权
-        try {
-            loginServer.checkRole(param.getOpenId());
-        } catch (RuntimeException e) {
-            log.info("check role failed: " + e);
-        }
-        User user = loginServer.getUser(param.getOpenId());
-        if (!Objects.equals(user.getId(), param.getUserId()))
-            return CommonResult.fail("User ID 与 Open ID 不一致");
-        return userServer.postNewUserInfo(param);
-    }
-
-    @PostMapping("user/info/drop")
-    public CommonResult<String> dropUserInfo(@RequestBody DropUserInfoParam param) {
-        //鉴权
-        try {
-            loginServer.checkRole(param.getOpenId());
-        } catch (RuntimeException e) {
-            log.info("check role failed: " + e);
-        }
-        //openid 获取 uid
-        User user = loginServer.getUser(param.getOpenId());
-        param.setUserId(user.getId());
-        return userServer.dropUserInfo(param);
-    }
+//    @PostMapping("user/info/postnew")
+//    public CommonResult<String> postNewUserInfo(@RequestBody PostNewUserIdParam param) {
+//        //鉴权
+//        try {
+//            loginServer.checkRole(param.getOpenId());
+//        } catch (RuntimeException e) {
+//            log.info("check role failed: " + e);
+//        }
+//        User user = loginServer.getUser(param.getOpenId());
+//        if (!Objects.equals(user.getId(), param.getUserId()))
+//            return CommonResult.fail("User ID 与 Open ID 不一致");
+//        return userServer.postNewUserInfo(param);
+//    }
+//
+//    @PostMapping("user/info/drop")
+//    public CommonResult<String> dropUserInfo(@RequestBody DropUserInfoParam param) {
+//        //鉴权
+//        try {
+//            loginServer.checkRole(param.getOpenId());
+//        } catch (RuntimeException e) {
+//            log.info("check role failed: " + e);
+//        }
+//        //openid 获取 uid
+//        User user = loginServer.getUser(param.getOpenId());
+//        param.setUserId(user.getId());
+//        return userServer.dropUserInfo(param);
+//    }
 
     @PostMapping("user/info/update")
     public CommonResult<String> updateUserInfo(@RequestBody UpdateUserInfoParam param) {
