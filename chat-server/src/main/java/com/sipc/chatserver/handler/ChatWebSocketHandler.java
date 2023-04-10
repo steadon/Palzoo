@@ -1,5 +1,6 @@
 package com.sipc.chatserver.handler;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sipc.chatserver.exception.BusinessException;
@@ -10,9 +11,10 @@ import com.sipc.chatserver.pojo.domain.Message;
 import com.sipc.chatserver.pojo.domain.Room;
 import com.sipc.chatserver.pojo.domain.RoomUserMerge;
 import com.sipc.chatserver.pojo.domain.User;
-import com.sipc.chatserver.pojo.param.ChatMessage;
+import com.sipc.chatserver.pojo.param.ChatMsg;
 import com.sipc.chatserver.pojo.param.OpenidAndPostId;
 import com.sipc.chatserver.pojo.param.RoomAndUser;
+import com.sipc.chatserver.pojo.param.SendMsg;
 import com.sipc.chatserver.service.feign.LoginServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,16 +49,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private static final Map<String, List<WebSocketSession>> rooms = new ConcurrentHashMap<>();
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final ObjectMapper objectMapper;
+    private final RoomMapper roomMapper;
+    private final RoomUserMergeMapper roomUserMergeMapper;
+    private final MessageMapper messageMapper;
+    private final LoginServer loginServer;
+
     @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private RoomMapper roomMapper;
-    @Autowired
-    private RoomUserMergeMapper roomUserMergeMapper;
-    @Autowired
-    private MessageMapper messageMapper;
-    @Autowired
-    private LoginServer loginServer;
+    public ChatWebSocketHandler(ObjectMapper objectMapper, RoomMapper roomMapper, RoomUserMergeMapper roomUserMergeMapper, MessageMapper messageMapper, LoginServer loginServer) {
+        this.objectMapper = objectMapper;
+        this.roomMapper = roomMapper;
+        this.roomUserMergeMapper = roomUserMergeMapper;
+        this.messageMapper = messageMapper;
+        this.loginServer = loginServer;
+    }
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
@@ -81,8 +91,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             //推送历史消息
             pushHistoryMsg(session, Integer.valueOf(postId));
 
+            //系统消息json化
+            String time = format.format(System.currentTimeMillis());
+            String systemMsg = JSONObject.toJSONString(new SendMsg(time, user.getOpenid() + ",进入了聊天室", "system"));
+
             //广播用户加入的消息
-            broadcast(postId, "用户 " + user.getId() + " 进入了聊天室 " + postId);
+            broadcast(postId, systemMsg);
         } catch (Exception e) {
             log.error("Error occurred while establishing connection.", e);
         }
@@ -99,13 +113,17 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             RoomAndUser inject = loadParam(openid, postId);
 
             //获取消息
-            ChatMessage chatMessage = objectMapper.readValue(message.getPayload(), ChatMessage.class);
+            ChatMsg chatMsg = objectMapper.readValue(message.getPayload(), ChatMsg.class);
 
             //数据库记录信息
-            messageMapper.insert(new Message(inject.getUser().getId(), inject.getRoom().getId(), chatMessage.getMessage()));
+            messageMapper.insert(new Message(inject.getUser().getOpenid(), inject.getRoom().getId(), chatMsg.getMessage()));
+
+            //用户消息json化
+            String time = format.format(System.currentTimeMillis());
+            String userMsg = JSONObject.toJSONString(new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
 
             //广播新消息
-            broadcast(postId, "用户 " + inject.getUser().getId() + ": " + chatMessage.getMessage());
+            broadcast(postId, userMsg);
         } catch (Exception e) {
             log.error("Error occurred while handling text message.", e);
         }
@@ -131,8 +149,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 a.setIsDeleted((byte) 1);
                 roomUserMergeMapper.updateById(a);
             });
+
+            //系统消息json化
+            String time = format.format(System.currentTimeMillis());
+            String systemMsg = JSONObject.toJSONString(new SendMsg(time, inject.getUser().getOpenid() + ",离开了聊天室", "system"));
+
             //广播用户离开的消息
-            broadcast(postId, "用户 " + inject.getUser().getId() + " 离开了聊天室 " + postId);
+            broadcast(postId, systemMsg);
         } catch (Exception e) {
             log.error("Error occurred while closing connection.", e);
         }
@@ -159,26 +182,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 广播对象
-     *
-     * @param postId  帖子ID
-     * @param message 要广播的对象
-     */
-    private void broadcast(String postId, Message message) {
-        List<WebSocketSession> users = rooms.get(postId);
-        if (users != null) {
-            for (WebSocketSession session : users) {
-                //对该组内的用户广播消息对象
-                try {
-                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-                } catch (IOException e) {
-                    log.error("Error occurred while broadcasting message.", e);
-                }
-            }
-        }
-    }
-
-    /**
      * 推送历史消息
      *
      * @param session 会话
@@ -187,11 +190,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         List<Message> messages = messageMapper.selectList(null);
         try {
             for (Message message : messages) {
-                //读取用户uid
-                Integer uid = message.getUid();
                 //读取对应房间的历史消息
                 if (message.getRoomId().equals(postId)) {
-                    session.sendMessage(new TextMessage("用户 " + uid + ": " + message.getMessage()));
+                    //读取用户openid
+                    String openid = message.getOpenid();
+                    //用户消息json化
+                    String time = message.getCreateTime().format(formatter);
+                    String userMsg = JSONObject.toJSONString(new SendMsg(time, message.getMessage(), openid));
+                    session.sendMessage(new TextMessage(userMsg));
                 }
             }
         } catch (IOException e) {

@@ -15,7 +15,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Boolean isUserInRoom(Integer uid, Integer roomId) {
-        RoomUserMerge roomUserMerge = roomUserMergeMapper.selectOne(new QueryWrapper<RoomUserMerge>().eq("uid", uid).eq("room_id", roomId));
+        RoomUserMerge roomUserMerge = roomUserMergeMapper.selectOne(new QueryWrapper<RoomUserMerge>().eq("room_id", roomId).eq("uid", uid));
         return roomUserMerge != null;
     }
 }
