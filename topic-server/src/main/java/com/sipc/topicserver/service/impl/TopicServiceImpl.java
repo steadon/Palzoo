@@ -162,11 +162,12 @@ public class TopicServiceImpl implements TopicService {
                                 Constant.dateTimeFormatter))
                         .lt("go_time", LocalDateTime.parse(searchParam.getEndTime(),
                                 Constant.dateTimeFormatter))
-                        .ge("number", numberMinEq)
-                        .le("number", numberMaxEq)
+                        .apply("((number >= " + numberMinEq +" AND number <= "+ numberMaxEq+") OR (number = " + 0+"))")
                         .orderByDesc("created_time")
                         .last("limit 10")
         );
+
+
 
 
         //循环填充内容
@@ -283,7 +284,31 @@ public class TopicServiceImpl implements TopicService {
         result.setTitle(post.getTitle());
         result.setContent(post.getContent());
         result.setAuthor(userInfo);
+
+        Category category = categoryMapper.selectOne(new QueryWrapper<Category>().eq("id", post.getCategoryId()).last("limit 1"));
+        if (category == null) {
+            log.warn("");
+            return CommonResult.fail("查询失败");
+        }
+        result.setCategory(category.getName());
+
+        if (post.getCategoryNext() != null) {
+            List<String> categoryNext = new ArrayList<>(Arrays.asList(post.getCategoryNext().split("\\+")));
+            result.setCategoryNext(categoryNext);
+        } else {
+            result.setCategoryNext(null);
+        }
+
+        if (post.getGender() == 0) {
+            result.setGender("性别不限");
+        } else if (post.getGender() == 1) {
+            result.setGender("男");
+        } else  if (post.getGender() == 2) {
+            result.setGender("女");
+        }
+
         result.setWatchNum(watchNum.intValue());
+        result.setNum(post.getNumber());
         result.setGoTime(post.getGoTime().format(Constant.dateTimeFormatter));
         result.setIsFinish(post.getIsFinish());
         result.setNowNum(3);
@@ -433,31 +458,19 @@ public class TopicServiceImpl implements TopicService {
         }
 
         //获取category_next_name
-//        String categoryNextName = (String)redisUtil.get("categoryNextId:" + post.getCategoryNextId());
-//        if (categoryNextName == null) {
-//            CategoryNext categoryNext = categoryNextMapper.selectOne(new QueryWrapper<CategoryNext>()
-//                    .eq("id", post.getCategoryNextId())
-//                    .last("limit 1")
-//            );
-//            if (categoryNext == null) {
-//                log.warn("setWaterfall方法查询categoryNext异常，未查找到正确的categoryNext，查询categoryNextId为：{}",
-//                        post.getCategoryNextId());
-//                return null;
-//            }
-//            categoryNextName = categoryNext.getName();
-//            redisUtil.set("categoryNextId:" + categoryNext.getId(), categoryNextName);
-//        }
-
-
         Waterfall waterfall = new Waterfall();
 
         waterfall.setPostId(post.getId());
         waterfall.setTitle(post.getTitle());
 
         waterfall.setCategory(categoryName);
-//        waterfall.setCategoryNext(categoryNextName);
-        List<String> categoryNext = new ArrayList<>(Arrays.asList(post.getCategoryNext().split("\\+")));
-        waterfall.setCategoryNext(categoryNext);
+
+        if (post.getCategoryNext() != null) {
+            List<String> categoryNext = new ArrayList<>(Arrays.asList(post.getCategoryNext().split("\\+")));
+            waterfall.setCategoryNext(categoryNext);
+        } else {
+            waterfall.setCategoryNext(null);
+        }
 
         if (post.getGender() == 0) {
             waterfall.setGender("性别不限");

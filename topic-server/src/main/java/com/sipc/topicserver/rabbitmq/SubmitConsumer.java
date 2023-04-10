@@ -8,6 +8,8 @@ import com.sipc.topicserver.mapper.PostMapper;
 import com.sipc.topicserver.pojo.domain.Category;
 import com.sipc.topicserver.pojo.domain.Post;
 import com.sipc.topicserver.pojo.dto.param.SubmitParam;
+import com.sipc.topicserver.pojo.dto.param.messageServer.SendParam;
+import com.sipc.topicserver.service.openfeign.MessageServer;
 import com.sipc.topicserver.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -34,13 +36,11 @@ public class SubmitConsumer {
     @Resource
     private RedisUtil redisUtil;
 
+    @Resource
+    private MessageServer messageServer;
+
     @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME)
     public void consumer(SubmitParam submitParam) {
-
-        if (submitParam.getCategoryNext() == null) {
-            log.warn("标签分类为空， 参数： {}", submitParam);
-            return;
-        }
 
         //获取分类id
         Integer categoryId = (Integer)redisUtil.get("categoryName:" + submitParam.getCategory());
@@ -53,6 +53,13 @@ public class SubmitConsumer {
             );
             if (category1 == null) {
                 log.warn("未查到正确的分类id，查询分类名称： {}", submitParam.getCategory());
+
+                log.warn("向用户反馈消息，帖子提交失败，分类错误，用户id: {}，错误分类: {}", submitParam.getUserId(), submitParam.getCategory());
+                SendParam sendParam = new SendParam();
+                sendParam.setUserId(0);
+                sendParam.setToUserId(submitParam.getUserId());
+                sendParam.setContent("分类错误，提交失败");
+                messageServer.send(sendParam);
                 return;
             }
             categoryId = category1.getId();
@@ -60,23 +67,6 @@ public class SubmitConsumer {
         }
 
         //获取子标签id
-//        Integer categoryNextId = (Integer)redisUtil.get("categoryNextName:" + submitParam.getCategoryNext());
-//
-//        if (categoryNextId == null) {
-//            CategoryNext name = categoryNextMapper.selectOne(
-//                    new QueryWrapper<CategoryNext>()
-//                            .select("id")
-//                            .eq("name", submitParam.getCategoryNext())
-//                            .last("limit 1")
-//            );
-//            if (name == null) {
-//                log.warn("未查到正确的分类标签id，查询分类标签名称： {}", submitParam.getCategory());
-//                return;
-//            }
-//            categoryNextId = name.getId();
-//            redisUtil.set("categoryNextName:" + submitParam.getCategoryNext(), categoryNextId);
-//        }
-
         Integer authorId = submitParam.getUserId();
 
         Post post = new Post();
@@ -116,10 +106,22 @@ public class SubmitConsumer {
 
         if (insert != 1) {
             log.error("数据库操作异常，帖子提交操作失败，插入数据数：{}, 插入帖子为： {}", insert, post);
+            log.warn("向用户反馈消息，帖子提交失败，插入数据异常，用户id: {}，用户帖子数据: {},插入数: {}",
+                    submitParam.getUserId(), submitParam.toString(), insert);
+            SendParam sendParam = new SendParam();
+            sendParam.setUserId(0);
+            sendParam.setToUserId(submitParam.getUserId());
+            sendParam.setContent("提交失败");
+            messageServer.send(sendParam);
+            return;
         }
 
-        log.info("成功提交帖子， 帖子数据为： {}", post);
-
+        log.info("成功提交帖子， 帖子数据为： {}", post.toString());
+        SendParam sendParam = new SendParam();
+        sendParam.setUserId(0);
+        sendParam.setToUserId(submitParam.getUserId());
+        sendParam.setContent("提交成功");
+        messageServer.send(sendParam);
     }
 
 }
