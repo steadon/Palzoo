@@ -28,8 +28,8 @@ public class Message implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @TableField("uid")
-    private Integer uid;
+    @TableField("openid")
+    private String openid;
 
     @TableField("room_id")
     private Integer roomId;
@@ -47,8 +47,8 @@ public class Message implements Serializable {
     @TableField("is_deleted")
     private Byte isDeleted;
 
-    public Message(Integer uid, Integer roomId, String message) {
-        this.uid = uid;
+    public Message(String openid, Integer roomId, String message) {
+        this.openid = openid;
         this.roomId = roomId;
         this.message = message;
         this.createTime = LocalDateTime.now();

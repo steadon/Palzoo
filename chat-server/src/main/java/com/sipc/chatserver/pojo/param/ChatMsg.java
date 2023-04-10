@@ -5,10 +5,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatMsg {
     private String message;
 
-    public ChatMessage() {
+    public ChatMsg() {
 
     }
 }

@@ -19,7 +19,7 @@ spring:
       server-addr: 43.143.162.177:8849
 
 mybatis-plus:
-  mapper-locations: classpath*:mapper/*.xml
+  mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.sipc.chatserver.pojo.domain
   global-config:
     db-config:
