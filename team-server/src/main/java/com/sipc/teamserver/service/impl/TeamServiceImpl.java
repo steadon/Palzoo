@@ -14,6 +14,7 @@ import com.sipc.teamserver.pojo.po.VoteInfo;
 import com.sipc.teamserver.pojo.result.GetTeamIdResult;
 import com.sipc.teamserver.pojo.result.GetTeamInfoResult;
 import com.sipc.teamserver.pojo.result.PostTeamResult;
+import com.sipc.teamserver.pojo.result.topicServer.DetailNumResult;
 import com.sipc.teamserver.pojo.result.topicServer.IsAuthorResult;
 import com.sipc.teamserver.pojo.result.userServer.GetUserInfoResult;
 import com.sipc.teamserver.service.TeamService;
@@ -55,6 +56,7 @@ public class TeamServiceImpl implements TeamService {
         GetTeamInfoResult result = new GetTeamInfoResult();
         result.setTeamId(id);
         var detailNum = topicServer.detailNum(team.getPostId());
+
         if (!Objects.equals(detailNum.getCode(), "00000")){
             detailNum = topicServer.detailNum(id);
         }
