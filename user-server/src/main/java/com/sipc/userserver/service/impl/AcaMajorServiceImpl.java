@@ -32,11 +32,7 @@ public class AcaMajorServiceImpl implements AcaMajorService {
         List<AcaMajorInfo> result = new ArrayList<>();
         List<AcaMajor> acaMajors = acaMajorMapper.selectList(new QueryWrapper<>());
         for (AcaMajor acaMajor : acaMajors) {
-            AcaMajorInfo info = new AcaMajorInfo();
-            info.setId(acaMajor.getId());
-            info.setAcaName(acaMajor.getAcaName());
-            info.setMajorName(acaMajor.getMajorName());
-            result.add(info);
+            result.add(new AcaMajorInfo(acaMajor));
         }
         return CommonResult.success(result);
     }

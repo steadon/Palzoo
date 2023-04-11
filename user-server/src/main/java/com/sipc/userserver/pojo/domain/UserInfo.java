@@ -16,8 +16,8 @@ import lombok.Setter;
  * 
  * </p>
  *
- * @author sterben
- * @since 2023-04-05
+ * @author DoudiNCer
+ * @since 2023-04-11
  */
 @Getter
 @Setter
@@ -56,6 +56,12 @@ public class UserInfo implements Serializable {
      */
     @TableField("aca_major_id")
     private Integer acaMajorId;
+
+    /**
+     * 用户头像
+     */
+    @TableField("avatar_url")
+    private String avatarUrl;
 
     /**
      * 创建时间
