@@ -36,7 +36,7 @@ spring:
 
   cloud:
     nacos:
-      server-addr: ${localhost}:8848
+      server-addr: ${nacos-server}
 
 feign:
   client:
