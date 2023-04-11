@@ -12,6 +12,6 @@ public class RoomAndUser {
     private Room room;
 
     public RoomAndUser() {
-
+        //此无参构造用于反序列化，不可删除
     }
 }

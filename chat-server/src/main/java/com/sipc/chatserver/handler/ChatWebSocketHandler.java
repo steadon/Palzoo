@@ -37,14 +37,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * 基于ConcurrentHashMap和WebSocket实现的线程安全的聊天室
+ *
  * @author Sterben
- * <p>
- * 基于ComcurrentHashMap和WebSocket实现的线程安全的聊天室
- * @version 1.0
+ * @version 1.0.0
  */
 @Slf4j
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
+    //使用ConcurrentHashMap线程安全地存储session，但是不利于高请求量的环境
     private static final Map<String, List<WebSocketSession>> rooms = new ConcurrentHashMap<>();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final RoomUserMergeMapper roomUserMergeMapper;
@@ -62,6 +63,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         this.roomMapper = roomMapper;
     }
 
+    /**
+     * 建立连接后执行
+     *
+     * @param session 会话连接
+     */
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         try {
@@ -69,7 +75,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String postId = openidAndPostId.getPostId();
             String openid = openidAndPostId.getOpenid();
 
-            //获取user和room
+            //远程调用login模块获取user和room
             User user = loginServer.getUser(openid);
             if (user == null) throw new BusinessException("非法用户");
             Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
@@ -98,6 +104,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 收到消息后执行
+     *
+     * @param session 会话连接
+     * @param message 文本消息
+     */
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) {
         try {
@@ -124,6 +136,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 断开连接后执行
+     *
+     * @param session 会话连接
+     * @param status  断开连接状态码
+     */
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         try {
@@ -201,7 +219,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     /**
      * 推送历史消息
      *
-     * @param session 会话
+     * @param session 会话连接
      */
     private void pushHistoryMsg(WebSocketSession session, Integer postId) {
         List<Message> messages = messageMapper.selectList(null);
@@ -230,7 +248,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      * @param postId 帖子唯一标识
      * @return 返回 room 和 user 对象
      */
-
     private RoomAndUser loadParam(String openid, String postId) {
         //feign 远程调用 login-server 获取 user 对象
         User user = loginServer.getUser(openid);
