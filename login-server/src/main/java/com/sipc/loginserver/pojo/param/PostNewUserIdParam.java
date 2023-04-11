@@ -10,6 +10,6 @@ public class PostNewUserIdParam {
     private String openid;
 
     public PostNewUserIdParam() {
-
+        //该无参构造用于反序列化，不可删除
     }
 }

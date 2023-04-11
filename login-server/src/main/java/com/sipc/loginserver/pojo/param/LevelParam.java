@@ -10,5 +10,6 @@ public class LevelParam {
     private String description;
 
     public LevelParam() {
+        //该无参构造用于反序列化，不可删除
     }
 }

@@ -26,17 +26,26 @@ import java.util.Objects;
 /**
  * @author Sterben
  * 2023.4.4
- * @implNote 微信登录&&软删除注销
+ * @implNote 此注销删除为软删除
  */
 @Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+    private final UserServer userServer;
 
     @Autowired
-    private UserServer userServer;
+    public LoginServiceImpl(UserMapper userMapper, UserServer userServer) {
+        this.userMapper = userMapper;
+        this.userServer = userServer;
+    }
 
+    /**
+     * 注册并登录
+     *
+     * @param param code
+     * @return openid
+     */
     @Override
     @Transactional
     public CommonResult<OpenIdParam> signIn(SignInParam param) {
@@ -90,6 +99,12 @@ public class LoginServiceImpl implements LoginService {
         return CommonResult.success(new OpenIdParam(sessionKey, openid));
     }
 
+    /**
+     * 注销用户
+     *
+     * @param openid openid
+     * @return msg
+     */
     @Override
     public CommonResult<String> signOff(String openid) {
         //查询用户验证合法性
