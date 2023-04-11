@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 鉴权业务块
+ *
+ * @author Sterben
+ * @version 1.0.0
+ */
 @RestController
 @RequestMapping("/check")
 public class CheckController {
@@ -20,11 +26,23 @@ public class CheckController {
         this.checkService = checkService;
     }
 
+    /**
+     * 鉴定用户合法性
+     *
+     * @param openid 微信用户唯一标识
+     * @return 用户权限
+     */
     @GetMapping("/role")
     public CommonResult<LevelParam> checkRole(@RequestParam String openid) {
         return checkService.checkRole(openid);
     }
 
+    /**
+     * 鉴定用户存在性并获取用户主体
+     *
+     * @param openid 微信用户唯一标识
+     * @return 用户主体
+     */
     @GetMapping("/user")
     public User getUser(@RequestParam(value = "openid") String openid) {
         return checkService.checkUser(openid);

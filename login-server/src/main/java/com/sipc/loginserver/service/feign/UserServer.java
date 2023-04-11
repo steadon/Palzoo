@@ -8,6 +8,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+/**
+ * 远程调用用户模块
+ */
 @FeignClient(value = "user-server")
 public interface UserServer {
     @PostMapping("/user/info/postnew")

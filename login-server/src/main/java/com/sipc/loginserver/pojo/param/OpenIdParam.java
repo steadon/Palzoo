@@ -10,6 +10,6 @@ public class OpenIdParam {
     private String openid;
 
     public OpenIdParam() {
-
+        //该无参构造用于反序列化，不可删除
     }
 }

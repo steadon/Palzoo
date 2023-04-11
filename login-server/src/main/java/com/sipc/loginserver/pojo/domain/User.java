@@ -78,6 +78,6 @@ public class User implements Serializable {
     }
 
     public User() {
-
+        //该无参构造用于反序列化，不可删除
     }
 }

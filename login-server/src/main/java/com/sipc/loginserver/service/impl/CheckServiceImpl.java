@@ -14,18 +14,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 鉴权&&获取用户对象
+ * 鉴权和获取用户对象
  *
  * @author Sterben
  */
 @Slf4j
 @Service
 public class CheckServiceImpl implements CheckService {
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private PermissionMapper permissionMapper;
+    private final UserMapper userMapper;
+    private final PermissionMapper permissionMapper;
 
+    @Autowired
+    public CheckServiceImpl(UserMapper userMapper, PermissionMapper permissionMapper) {
+        this.userMapper = userMapper;
+        this.permissionMapper = permissionMapper;
+    }
+
+    /**
+     * 鉴定用户合法性
+     *
+     * @param openid openid
+     * @return 用户权限信息
+     */
     @Override
     public CommonResult<LevelParam> checkRole(String openid) {
         //查询该用户信息

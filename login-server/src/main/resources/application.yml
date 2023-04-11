@@ -1,10 +1,6 @@
 server:
   port: 11510
 
-localhost: localhost
-
-remote-host: 43.142.146.75
-
 nacos-server: 43.143.162.177:8849
 
 spring:
@@ -12,11 +8,11 @@ spring:
     name: login-server
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${remote-host}/tjut_wall_login_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://43.142.146.75/tjut_wall_login_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
     username: user
     password: user
   redis:
-    url: redis://root@${localhost}:6379
+    url: redis://root@localhost:6379
     connect-timeout: 10000
   cloud:
     nacos:
