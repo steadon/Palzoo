@@ -1,6 +1,7 @@
 package com.sipc.topicserver.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -24,8 +25,10 @@ public class DirectRabbitConfig {
 
     @Bean
     public RabbitTemplate createRabbitTemplate(ConnectionFactory connectionFactory) {
+
         RabbitTemplate rabbitTemplate = new RabbitTemplate();
         rabbitTemplate.setConnectionFactory(connectionFactory);
+
         //设置开启Mandatory,才能触发回调函数,无论消息推送结果怎么样都强制调用回调函数
         rabbitTemplate.setMandatory(true);
 
@@ -105,6 +108,7 @@ public class DirectRabbitConfig {
     @Bean
     public Queue deadRequestQueue() {
 
+        //设置死信队列参数
         Map<String, Object> arguments = new HashMap<>();
         arguments.put("x-dead-letter-exchange", SUBMIT_DEAD_EXCHANGE_NAME);
         arguments.put("x-dead-letter-routing-key", SUBMIT_DEAD_ROUTING_KEY);
@@ -121,5 +125,15 @@ public class DirectRabbitConfig {
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
+
+//    @Bean
+//    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+//        SimpleRabbitListenerContainerFactory factory = new ();
+//        factory.setConnectionFactory(connectionFactory);
+//        //在消费者消费完成消息前，该消费者只接受一个消息
+//        factory.setPrefetchCount(1);
+//        factory.setDefaultRequeueRejected(true); // 设置重新加入队列
+//        return factory;
+//    }
 
 }
