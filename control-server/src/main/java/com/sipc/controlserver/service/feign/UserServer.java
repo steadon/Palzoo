@@ -22,6 +22,6 @@ public interface UserServer {
     CommonResult<String> dropUserInfo(DropUserInfoParam param);
     @PostMapping("/user-server/user/info/update")
     CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param);
-    @GetMapping("/user-server/acamajor/get")
+    @GetMapping("/user-server/user/acamajor/get")
     CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo();
 }
