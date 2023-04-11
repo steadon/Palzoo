@@ -10,29 +10,27 @@ import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
-import com.sipc.userserver.util.WechatCommonUtil;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-@Slf4j
 public class UserInfoServiceImpl implements UserInfoService {
-//    private final WechatCommonUtil wechatCommonUtil;
     private final UserInfoMapper userInfoMapper;
     private final AcaMajorMapper acaMajorMapper;
 
     @Autowired
-    public UserInfoServiceImpl(WechatCommonUtil wechatCommonUtil, UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper) {
-//        this.wechatCommonUtil = wechatCommonUtil;
+    public UserInfoServiceImpl(UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper) {
         this.userInfoMapper = userInfoMapper;
         this.acaMajorMapper = acaMajorMapper;
     }
 
     /**
+     * 获取用户信息
      * @param uid 用户ID
      * @return 用户信息
+     * @author DoudiNCer
      */
     @Override
     public CommonResult<GetUserInfoResult> getUserInfo(Integer uid) {
@@ -58,19 +56,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
+     * 获取用户信息
      * @param param 新用户的 userID 与 openID
-     * @return 处理结果
+     * @return 处理结果，包括用户的UserID、UserName，可能不存在的用户学院、专业、性别、手机号
+     * @author DoudiNCer
      */
     @Override
     public CommonResult<String> postNewUserInfo(PostNewUserIdParam param) {
         UserInfo ifexist = userInfoMapper.selectById(param.getUserId());
         if (ifexist != null)
             return CommonResult.fail("用户ID已存在");
-        //获取微信小程序相关常量
-//        String appid = wechatCommonUtil.getAppId();
-//        String secret = wechatCommonUtil.getAppSecret();
-//        String jsCode = param.getCode();
-//        log.info("code:" + jsCode);
 
         UserInfo ui = new UserInfo();
         ui.setUserId(param.getUserId());
@@ -85,8 +80,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
+     * 删除用户信息
      * @param param 用户ID
      * @return 处理结果
+     * @author DoudiNCer
      */
     @Override
     public CommonResult<String> dropUserInfo(DropUserInfoParam param) {
@@ -97,8 +94,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
-     * @param param 用户ID与要修改的信息
+     * 更新用户信息
+     * @param param 必须有用户ID（UserID），可选参数有用户名、性别、学院专业ID、手机号
      * @return 处理结果
+     * @author DoudiNCer
      */
     @Override
     public CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param) {
