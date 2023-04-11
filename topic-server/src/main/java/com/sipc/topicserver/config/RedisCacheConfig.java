@@ -23,6 +23,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Redis 缓存配置类
@@ -46,6 +47,9 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         //使用StringRedisSerializer来序列化和反序列化redis的key值
         template.setKeySerializer(new StringRedisSerializer());
         template.afterPropertiesSet();
+
+        template.expire("mykey", 60, TimeUnit.MINUTES);
+
         return template;
     }
     @Bean

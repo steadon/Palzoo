@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface TopicServer {
     @PostMapping("/topic-server/finish")
     CommonResult<String> finish(@RequestBody FinishParam finishParam);
-    @GetMapping("/topic-server/detail/num")
+    @GetMapping("/topic-server/check/detail/num")
     CommonResult<DetailNumResult> detailNum(@RequestParam(value = "postId") Integer postId);
     @GetMapping("/topic-sever/check/is/author")
     CommonResult<IsAuthorResult> isAuthor(@RequestParam(value = "userId") Integer userId,

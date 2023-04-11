@@ -65,9 +65,9 @@ mybatis-plus:
 #  application-description: springfox swagger3
 #  try-host: http://localhost:${server.port}
 
-logging:
-  level:
-    com.sipc.messageserver.mapper: debug
+#logging:
+#  level:
+#    com.sipc.messageserver.mapper: debug
 
 lark-robot:
   url: https://open.feishu.cn/open-apis/bot/v2/hook/4184ed49-2a44-4b2d-9d2a-f62f0b21a6a8
