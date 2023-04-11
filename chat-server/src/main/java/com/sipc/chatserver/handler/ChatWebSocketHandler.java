@@ -46,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
     //使用ConcurrentHashMap线程安全地存储session，但是不利于高请求量的环境
-    private static final Map<String, List<WebSocketSession>> rooms = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<WebSocketSession>> rooms = new ConcurrentHashMap<>();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final RoomUserMergeMapper roomUserMergeMapper;
     private final MessageMapper messageMapper;
@@ -88,17 +88,17 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             roomUserMergeMapper.insert(new RoomUserMerge(user.getId(), room.getId()));
 
             //内存中保存信息
-            rooms.computeIfAbsent(postId, k -> new CopyOnWriteArrayList<>()).add(session);
+            rooms.computeIfAbsent(room.getId(), k -> new CopyOnWriteArrayList<>()).add(session);
 
             //推送历史消息
-            pushHistoryMsg(session, Integer.valueOf(postId));
+            pushHistoryMsg(session, room.getId());
 
             //系统消息json化
             String time = LocalDateTime.now().format(formatter);
             String systemMsg = JSONObject.toJSONString(new SendMsg(time, user.getOpenid() + ",进入了聊天室", "system"));
 
             //广播用户加入的消息
-            broadcast(postId, systemMsg);
+            broadcast(room.getId(), systemMsg);
         } catch (Exception e) {
             log.error("Error occurred while establishing connection.", e);
         }
@@ -130,7 +130,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String time = LocalDateTime.now().format(formatter);
 
             //广播新消息 - 排除用户本人
-            broadcast(postId, new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
+            broadcast(inject.getRoom().getId(), new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
         } catch (Exception e) {
             log.error("Error occurred while handling text message.", e);
         }
@@ -153,7 +153,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             RoomAndUser inject = loadParam(openid, postId);
 
             //乐观删除离开用户的会话
-            List<WebSocketSession> users = rooms.get(postId);
+            List<WebSocketSession> users = rooms.get(inject.getRoom().getId());
             users.remove(session);
 
             //软删除该用户
@@ -168,7 +168,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String systemMsg = JSONObject.toJSONString(new SendMsg(time, inject.getUser().getOpenid() + ",离开了聊天室", "system"));
 
             //广播用户离开的消息
-            broadcast(postId, systemMsg);
+            broadcast(inject.getRoom().getId(), systemMsg);
         } catch (Exception e) {
             log.error("Error occurred while closing connection.", e);
         }
@@ -177,11 +177,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     /**
      * 广播给所有人消息
      *
-     * @param postId  帖子ID
+     * @param roomId  帖子ID
      * @param message 要广播的消息
      */
-    private void broadcast(String postId, String message) {
-        List<WebSocketSession> users = rooms.get(postId);
+    private void broadcast(Integer roomId, String message) {
+        List<WebSocketSession> users = rooms.get(roomId);
         if (users != null) {
             for (WebSocketSession session : users) {
                 //对该组内的用户广播消息对象
@@ -197,11 +197,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     /**
      * 广播给发送者以外消息
      *
-     * @param postId  帖子ID
+     * @param roomId  帖子ID
      * @param message 要广播的消息对象
      */
-    private void broadcast(String postId, SendMsg message) {
-        List<WebSocketSession> users = rooms.get(postId);
+    private void broadcast(Integer roomId, SendMsg message) {
+        List<WebSocketSession> users = rooms.get(roomId);
         if (users != null) {
             for (WebSocketSession session : users) {
                 //对该组内的用户广播消息对象
@@ -221,12 +221,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      *
      * @param session 会话连接
      */
-    private void pushHistoryMsg(WebSocketSession session, Integer postId) {
+    private void pushHistoryMsg(WebSocketSession session, Integer roomId) {
         List<Message> messages = messageMapper.selectList(null);
         try {
             for (Message message : messages) {
                 //读取对应房间的历史消息
-                if (message.getRoomId().equals(postId)) {
+                if (message.getRoomId().equals(roomId)) {
                     //读取用户openid
                     String openid = message.getOpenid();
                     //用户消息json化
