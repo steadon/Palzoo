@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(value = "user-server")
 public interface UserService {
-    @GetMapping("/user-server/user/info/get")
+    @GetMapping("/user/info/get")
     CommonResult<GetUserInfoResult> getUserInfo(Integer uid);
 }
