@@ -7,9 +7,7 @@ import com.baomidou.mybatisplus.generator.config.TemplateType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import org.apache.ibatis.annotations.Mapper;
 import org.junit.jupiter.api.Test;
-
 import java.util.Collections;
-
 
 /**
  * @author tzih && sterben
@@ -18,10 +16,8 @@ import java.util.Collections;
 
 public class CodeGeneratorTest {
 
-
     @Test
     public void Test() {
-
         String url = "jdbc:mysql://43.142.146.75/tjut_wall_user_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8";
         String username = "user";
         String password = "user";
@@ -47,5 +43,4 @@ public class CodeGeneratorTest {
                     builder.disable(TemplateType.CONTROLLER).disable(TemplateType.SERVICE).disable(TemplateType.SERVICE_IMPL);
                 }).execute();
     }
-
 }

@@ -2,9 +2,12 @@ package com.sipc.teamserver.pojo.result;
 
 import com.sipc.teamserver.pojo.po.VoteInfo;
 import lombok.Data;
-
 import java.util.List;
 
+/**
+ * 获取投票信息的响应体
+ * @author DoudiNCer
+ */
 @Data
 public class GetTeamInfoResult {
     // 队伍ID
