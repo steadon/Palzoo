@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -29,7 +28,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -45,25 +44,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Slf4j
 @Component
-@CrossOrigin
 public class ChatWebSocketHandler extends TextWebSocketHandler {
-
     private static final Map<String, List<WebSocketSession>> rooms = new ConcurrentHashMap<>();
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private final ObjectMapper objectMapper;
-    private final RoomMapper roomMapper;
     private final RoomUserMergeMapper roomUserMergeMapper;
     private final MessageMapper messageMapper;
+    private final ObjectMapper objectMapper;
     private final LoginServer loginServer;
+    private final RoomMapper roomMapper;
 
     @Autowired
     public ChatWebSocketHandler(ObjectMapper objectMapper, RoomMapper roomMapper, RoomUserMergeMapper roomUserMergeMapper, MessageMapper messageMapper, LoginServer loginServer) {
-        this.objectMapper = objectMapper;
-        this.roomMapper = roomMapper;
         this.roomUserMergeMapper = roomUserMergeMapper;
         this.messageMapper = messageMapper;
+        this.objectMapper = objectMapper;
         this.loginServer = loginServer;
+        this.roomMapper = roomMapper;
     }
 
     @Override
@@ -92,7 +88,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             pushHistoryMsg(session, Integer.valueOf(postId));
 
             //系统消息json化
-            String time = format.format(System.currentTimeMillis());
+            String time = LocalDateTime.now().format(formatter);
             String systemMsg = JSONObject.toJSONString(new SendMsg(time, user.getOpenid() + ",进入了聊天室", "system"));
 
             //广播用户加入的消息
@@ -118,11 +114,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             //数据库记录信息
             messageMapper.insert(new Message(inject.getUser().getOpenid(), inject.getRoom().getId(), chatMsg.getMessage()));
 
-            //用户消息json化
-            String time = format.format(System.currentTimeMillis());
-//            String userMsg = JSONObject.toJSONString(new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
+            //时间戳格式化
+            String time = LocalDateTime.now().format(formatter);
 
-            //todo 广播新消息 - 排除用户本人
+            //广播新消息 - 排除用户本人
             broadcast(postId, new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
         } catch (Exception e) {
             log.error("Error occurred while handling text message.", e);
@@ -151,7 +146,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             });
 
             //系统消息json化
-            String time = format.format(System.currentTimeMillis());
+            String time = LocalDateTime.now().format(formatter);
             String systemMsg = JSONObject.toJSONString(new SendMsg(time, inject.getUser().getOpenid() + ",离开了聊天室", "system"));
 
             //广播用户离开的消息
