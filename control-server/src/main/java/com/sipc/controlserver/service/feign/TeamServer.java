@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(value = "team-server")
 public interface TeamServer {
-    @PostMapping("team-server/team/postVote")
+    @PostMapping("/team/postVote")
     CommonResult<String> postVote(PostVoteParam param);
-    @PostMapping("/team-server/team/postTeam")
+    @PostMapping("/team/postTeam")
     CommonResult<PostTeamResult> postTeam(PostTeamParam param);
-    @GetMapping("/team-server/team/getTeamInfo")
+    @GetMapping("/team/getTeamInfo")
     CommonResult<GetTeamInfoResult> getTeamInfo(Integer id);
-    @GetMapping("/team-server/team/getTeamId")
+    @GetMapping("/team/getTeamId")
     CommonResult<GetTeamIdResult> getTeamId(Integer id);
 }

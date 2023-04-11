@@ -14,14 +14,14 @@ import java.util.List;
 
 @FeignClient(value = "user-server")
 public interface UserServer {
-    @GetMapping("/user-server/user/info/get")
+    @GetMapping("/user/info/get")
     CommonResult<GetUserInfoResult> getUserInfo(Integer uid);
-    @PostMapping("/user-server/user/info/postnew")
+    @PostMapping("/user/info/postnew")
     CommonResult<String> postNewUserInfo(PostNewUserIdParam param);
-    @PostMapping("/user-server/user/info/drop")
+    @PostMapping("/user/info/drop")
     CommonResult<String> dropUserInfo(DropUserInfoParam param);
-    @PostMapping("/user-server/user/info/update")
+    @PostMapping("/user/info/update")
     CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param);
-    @GetMapping("/user-server/user/acamajor/get")
+    @GetMapping("/user/acamajor/get")
     CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo();
 }
