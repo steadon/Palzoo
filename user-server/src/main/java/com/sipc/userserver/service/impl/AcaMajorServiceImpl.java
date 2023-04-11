@@ -22,13 +22,16 @@ public class AcaMajorServiceImpl implements AcaMajorService {
     }
 
     /**
-     * @return 所有学院与专业
+     * 获取所有学院专业
+     *
+     * @return 所有学院与专业，包括学院专业ID、学院名、专业名
+     * @author DoudiNCer
      */
     @Override
     public CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo() {
         List<AcaMajorInfo> result = new ArrayList<>();
         List<AcaMajor> acaMajors = acaMajorMapper.selectList(new QueryWrapper<>());
-        for (AcaMajor acaMajor : acaMajors){
+        for (AcaMajor acaMajor : acaMajors) {
             AcaMajorInfo info = new AcaMajorInfo();
             info.setId(acaMajor.getId());
             info.setAcaName(acaMajor.getAcaName());

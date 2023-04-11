@@ -22,6 +22,11 @@ public class AcaMajorController {
         this.acaMajorService = acaMajorService;
     }
 
+    /**
+     * 获取所有学院及专业
+     * @author DoudiNCer
+     * @return 所有学院及专业
+     */
     @GetMapping("/acamajor/get")
     public CommonResult<List<AcaMajorInfo>> getAllAcaMajorInfo(){
         return acaMajorService.getAllAcamajorInfo();

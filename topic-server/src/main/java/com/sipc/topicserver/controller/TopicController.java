@@ -55,8 +55,8 @@ public class TopicController {
     }
 
     @GetMapping("/author")
-    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId, @RequestParam(required = false) Long lastTime) {
-        return topicService.author(authorId, lastTime);
+    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId) {
+        return topicService.author(authorId);
     }
 
     @PostMapping("/delete")

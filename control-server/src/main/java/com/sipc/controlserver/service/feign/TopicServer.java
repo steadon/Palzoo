@@ -32,8 +32,7 @@ public interface TopicServer {
     CommonResult<DetailResult> detail(@RequestParam(value = "postId") Integer postId);
 
     @GetMapping("/topic-server/author")
-    CommonResult<WaterfallResult> author(@RequestParam(value = "authorId") Integer authorId,
-                                         @RequestParam(value = "lastTime") Long lastTime);
+    CommonResult<WaterfallResult> author(@RequestParam(value = "authorId") Integer authorId);
 
     @PostMapping("/topic-server/delete")
     CommonResult<String> delete(@RequestBody TopicDeleteParam deleteParam);
