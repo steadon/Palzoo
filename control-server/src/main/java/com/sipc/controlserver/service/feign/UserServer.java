@@ -9,6 +9,7 @@ import com.sipc.controlserver.pojo.result.userServer.GetUserInfoResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -16,13 +17,17 @@ import java.util.List;
 @FeignClient(value = "user-server")
 public interface UserServer {
     @GetMapping("/user/info/get")
-    CommonResult<GetUserInfoResult> getUserInfo(Integer userId);
+    CommonResult<GetUserInfoResult> getUserInfo(@RequestParam("userId") Integer userId);
+
     @PostMapping("/user/info/postnew")
-    CommonResult<String> postNewUserInfo(PostNewUserIdParam param);
+    CommonResult<String> postNewUserInfo(@RequestBody PostNewUserIdParam param);
+
     @PostMapping("/user/info/drop")
-    CommonResult<String> dropUserInfo(DropUserInfoParam param);
+    CommonResult<String> dropUserInfo(@RequestBody DropUserInfoParam param);
+
     @PostMapping("/user/info/update")
-    CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param);
+    CommonResult<String> UpdateUserInfo(@RequestBody UpdateUserInfoParam param);
+
     @GetMapping("/user/acamajor/get")
     CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo();
 }
