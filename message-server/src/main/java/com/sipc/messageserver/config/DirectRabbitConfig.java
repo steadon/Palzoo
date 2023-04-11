@@ -1,7 +1,9 @@
-package com.sipc.topicserver.config;
+package com.sipc.messageserver.config;
 
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -15,20 +17,18 @@ import java.util.Map;
 @Configuration
 public class DirectRabbitConfig {
 
-    public static final String QUEUE_NAME = "TopicRequestQueue"; //队列名称
-    public static final String EXCHANGE_NAME = "TopicRequestExchange"; //交换器名称
-    public static final String ROUTING_KEY = "TopicRequestRouting"; //路由键
+    public static final String QUEUE_NAME = "MessageRequestQueue"; //队列名称
+    public static final String EXCHANGE_NAME = "MessageRequestExchange"; //交换器名称
+    public static final String ROUTING_KEY = "MessageRequestRouting"; //路由键
 
-    public static final String SUBMIT_DEAD_QUEUE_NAME = "SubmitRequestDeadQueue";
-    public static final String SUBMIT_DEAD_EXCHANGE_NAME = "SubmitRequestDeadExchange";
-    public static final String SUBMIT_DEAD_ROUTING_KEY = "SubmitRequestDeadRouting";
+    public static final String MESSAGE_DEAD_QUEUE_NAME = "MessageRequestDeadQueue";
+    public static final String MESSAGE_DEAD_EXCHANGE_NAME = "MessageRequestDeadExchange";
+    public static final String MESSAGE_DEAD_ROUTING_KEY = "MessageRequestDeadRouting";
 
     @Bean
     public RabbitTemplate createRabbitTemplate(ConnectionFactory connectionFactory) {
-
         RabbitTemplate rabbitTemplate = new RabbitTemplate();
         rabbitTemplate.setConnectionFactory(connectionFactory);
-
         //设置开启Mandatory,才能触发回调函数,无论消息推送结果怎么样都强制调用回调函数
         rabbitTemplate.setMandatory(true);
 
@@ -102,38 +102,28 @@ public class DirectRabbitConfig {
 
     @Bean
     public DirectExchange deadRequestExchange() {
-        return new DirectExchange(SUBMIT_DEAD_EXCHANGE_NAME, true, false);
+        return new DirectExchange(MESSAGE_DEAD_EXCHANGE_NAME, true, false);
     }
 
     @Bean
     public Queue deadRequestQueue() {
 
-        //设置死信队列参数
         Map<String, Object> arguments = new HashMap<>();
-        arguments.put("x-dead-letter-exchange", SUBMIT_DEAD_EXCHANGE_NAME);
-        arguments.put("x-dead-letter-routing-key", SUBMIT_DEAD_ROUTING_KEY);
+        arguments.put("x-dead-letter-exchange", MESSAGE_DEAD_EXCHANGE_NAME);
+        arguments.put("x-dead-letter-routing-key", MESSAGE_DEAD_ROUTING_KEY);
+        arguments.put("x-message-ttl", 5000); //TTL为5s
 
-        return new Queue(SUBMIT_DEAD_QUEUE_NAME, true, false, false, arguments);
+        return new Queue(MESSAGE_DEAD_QUEUE_NAME, true, false, false, arguments);
     }
 
     @Bean
     public Binding deadBindingDirect() {
 
-        return BindingBuilder.bind(deadRequestQueue()).to(deadRequestExchange()).with(SUBMIT_DEAD_ROUTING_KEY);
+        return BindingBuilder.bind(deadRequestQueue()).to(deadRequestExchange()).with(MESSAGE_DEAD_ROUTING_KEY);
     }
     @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-
-//    @Bean
-//    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
-//        SimpleRabbitListenerContainerFactory factory = new ();
-//        factory.setConnectionFactory(connectionFactory);
-//        //在消费者消费完成消息前，该消费者只接受一个消息
-//        factory.setPrefetchCount(1);
-//        factory.setDefaultRequeueRejected(true); // 设置重新加入队列
-//        return factory;
-//    }
 
 }
