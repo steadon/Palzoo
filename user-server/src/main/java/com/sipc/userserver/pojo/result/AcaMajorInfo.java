@@ -1,5 +1,6 @@
 package com.sipc.userserver.pojo.result;
 
+import com.sipc.userserver.pojo.domain.AcaMajor;
 import lombok.Data;
 
 /**
@@ -14,4 +15,10 @@ public class AcaMajorInfo {
     private String acaName;
     // 专业名称
     private String majorName;
+    public AcaMajorInfo(){}
+    public AcaMajorInfo(AcaMajor acaMajor){
+        this.setId(acaMajor.getId());
+        this.setMajorName(acaMajor.getMajorName());
+        this.setAcaName(acaMajor.getAcaName());
+    }
 }
