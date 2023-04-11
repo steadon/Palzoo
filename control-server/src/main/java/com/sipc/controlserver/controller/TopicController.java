@@ -104,8 +104,19 @@ public class TopicController {
     }
 
     @GetMapping("/author")
-    public CommonResult<WaterfallResult> author(@RequestParam Integer authorId, @RequestParam(required = false) Long lastTime) {
-        return topicServer.author(authorId, lastTime);
+    public CommonResult<WaterfallResult> author(@RequestParam String openId) {
+
+        Integer userId;
+
+        //鉴权
+        try {
+            userId = loginServer.getUser(openId).getId();
+        } catch (RuntimeException e) {
+            log.warn("完成帖子接口不正常,用户openid: {}, 错误信息: {}", openId, e.toString());
+            return CommonResult.fail("权限异常");
+        }
+
+        return topicServer.author(userId);
     }
 
     @PostMapping("/delete")

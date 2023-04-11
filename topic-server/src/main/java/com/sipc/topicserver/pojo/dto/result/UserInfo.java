@@ -3,6 +3,7 @@ package com.sipc.topicserver.pojo.dto.result;
 import lombok.Data;
 
 /**
+ * 用户信息类，嵌入帖子详细类
  * @author tzih
  * @version 1.0
  * @since 2023/4/8 21:57
