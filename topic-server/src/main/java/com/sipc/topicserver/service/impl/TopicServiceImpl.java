@@ -58,6 +58,12 @@ public class TopicServiceImpl implements TopicService {
     private RabbitTemplate rabbitTemplate;
 
 
+    /**
+     * 提交帖子，只负责将要提交的帖子发送到消息队列，后续处理由对应的消费者处理
+     * @author tzih
+     * @param submitParam 提交帖子的相关信息
+     * @return 处理结果，是否成功提交
+     */
     @Override
     public synchronized CommonResult<String> submit(SubmitParam submitParam) {
 
@@ -74,6 +80,12 @@ public class TopicServiceImpl implements TopicService {
 
     }
 
+    /**
+     * 获取帖子瀑布流，包含获取全部帖子和筛选帖子
+     * @author tzih
+     * @param searchParam 获取帖子的筛选信息，内部参数可以为空
+     * @return 处理结果，返回里包含获取帖子的瀑布流和下一次请求的时间参数，瀑布流里有着一个包含帖子信息的列表
+     */
     @Override
     public CommonResult<WaterfallResult> search(SearchParam searchParam) {
 
@@ -196,6 +208,12 @@ public class TopicServiceImpl implements TopicService {
         return CommonResult.success(waterfallResult);
     }
 
+    /**
+     * 完成帖子，将响应帖子标记为完成，获取帖子瀑布流时不再返回
+     * @author tzih
+     * @param finishParam 完成帖子接口所需要的参数。userId：用户id；postId：帖子id
+     * @return 返回处理结果，是否完成帖子
+     */
     @Override
     public CommonResult<String> finish(FinishParam finishParam) {
 
@@ -235,6 +253,12 @@ public class TopicServiceImpl implements TopicService {
         return CommonResult.success("更新成功");
     }
 
+    /**
+     * 帖子详细信息，获取帖子的详细信息
+     * @author tzih
+     * @param postId 帖子id
+     * @return 返回处理结果，包含帖子的相关信息，以及作者信息及现在组队的人数
+     */
     @Override
     public CommonResult<DetailResult> detail(Integer postId) {
 
@@ -321,17 +345,20 @@ public class TopicServiceImpl implements TopicService {
         return CommonResult.success(result);
     }
 
+    /**
+     * 获取用户个人帖子，无论是否完成都会返回
+     * @author tzih
+     * @param authorId 用户id
+     * @return 返回处理结果，回里包含用户个人帖子的瀑布流和下一次请求的时间参数，瀑布流里有着一个包含帖子信息的列表
+     */
     @Override
-    public CommonResult<WaterfallResult> author(Integer authorId, Long lastTime) {
+    public CommonResult<WaterfallResult> author(Integer authorId) {
 
         WaterfallResult result = new WaterfallResult();
 
         List<Waterfall> waterfalls = new ArrayList<>();
 
         //设置时间
-        if (lastTime == null) {
-            lastTime = LocalDateTime.now().toEpochSecond(Constant.zoneOffset);
-        }
 
         //
         LocalDateTime nextTime = LocalDateTime.now();
@@ -348,22 +375,26 @@ public class TopicServiceImpl implements TopicService {
         for (Post post : postMapper.selectList(
                 new QueryWrapper<Post>()
                         .eq("author_id", authorId)
-                        .lt("created_time", LocalDateTime.ofEpochSecond(lastTime,0,Constant.zoneOffset))
-                        .last("limit 10")
         )) {
 
             //组装帖子信息
             waterfalls.add(setWaterfall(post));
 
-            nextTime = post.getCreatedTime();
+//            nextTime = post.getCreatedTime();
         }
 
         result.setWaterfalls(waterfalls);
-        result.setNextTime(nextTime.toEpochSecond(Constant.zoneOffset));
+//        result.setNextTime(nextTime.toEpochSecond(Constant.zoneOffset));
 
         return CommonResult.success(result);
     }
 
+    /**
+     * 删除帖子
+     * @author tzih
+     * @param deleteParam 删除帖子接口所需要的参数，userId,
+     * @return 返回处理结果，删除帖子是否成功
+     */
     @Override
     public CommonResult<String> delete(DeleteParam deleteParam) {
 
@@ -491,18 +522,18 @@ public class TopicServiceImpl implements TopicService {
     private Integer getNowNum(Integer postId) {
         CommonResult<GetTeamIdResult> teamIdResult = teamServer.getTeamId(postId);
         if (!Objects.equals(teamIdResult.getCode(), ResultEnum.SUCCESS.getCode())) {
-            return null;
+            return 0;
         }
         if (teamIdResult.getData() != null && teamIdResult.getData().getTeamId() != null) {
             CommonResult<GetTeamInfoResult> teamInfoResult = teamServer.getTeamInfo(teamIdResult.getData().getTeamId());
             if (!Objects.equals(teamInfoResult.getCode(), ResultEnum.SUCCESS.getCode())) {
-                return null;
+                return 0;
             }
             if (teamInfoResult.getData() != null && teamInfoResult.getData().getActNum() != null) {
                 return teamInfoResult.getData().getActNum();
             }
         }
-        return null;
+        return 0;
     }
 
 

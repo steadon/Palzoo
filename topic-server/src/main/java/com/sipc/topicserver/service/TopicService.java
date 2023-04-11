@@ -22,7 +22,7 @@ public interface TopicService {
 
     CommonResult<DetailResult> detail(Integer postId);
 
-    CommonResult<WaterfallResult> author(Integer authorId, Long lastTime);
+    CommonResult<WaterfallResult> author(Integer authorId);
 
     CommonResult<String> delete(DeleteParam deleteParam);
 
