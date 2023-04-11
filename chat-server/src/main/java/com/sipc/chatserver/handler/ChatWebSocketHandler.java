@@ -49,8 +49,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private static final Map<String, List<WebSocketSession>> rooms = new ConcurrentHashMap<>();
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final ObjectMapper objectMapper;
     private final RoomMapper roomMapper;
     private final RoomUserMergeMapper roomUserMergeMapper;
@@ -120,10 +120,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
             //用户消息json化
             String time = format.format(System.currentTimeMillis());
-            String userMsg = JSONObject.toJSONString(new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
+//            String userMsg = JSONObject.toJSONString(new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
 
-            //广播新消息
-            broadcast(postId, userMsg);
+            //todo 广播新消息 - 排除用户本人
+            broadcast(postId, new SendMsg(time, chatMsg.getMessage(), inject.getUser().getOpenid()));
         } catch (Exception e) {
             log.error("Error occurred while handling text message.", e);
         }
@@ -162,7 +162,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 广播消息
+     * 广播给所有人消息
      *
      * @param postId  帖子ID
      * @param message 要广播的消息
@@ -174,6 +174,28 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 //对该组内的用户广播消息对象
                 try {
                     session.sendMessage(new TextMessage(message));
+                } catch (IOException e) {
+                    log.error("Error occurred while broadcasting message.", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * 广播给发送者以外消息
+     *
+     * @param postId  帖子ID
+     * @param message 要广播的消息对象
+     */
+    private void broadcast(String postId, SendMsg message) {
+        List<WebSocketSession> users = rooms.get(postId);
+        if (users != null) {
+            for (WebSocketSession session : users) {
+                //对该组内的用户广播消息对象
+                try {
+                    //广播给发送者以外的所有用户
+                    if (!Objects.equals(checkUrl(session).getOpenid(), message.getOpenid()))
+                        session.sendMessage(new TextMessage(JSONObject.toJSONString(message)));
                 } catch (IOException e) {
                     log.error("Error occurred while broadcasting message.", e);
                 }
