@@ -13,11 +13,9 @@ import com.sipc.topicserver.pojo.dto.param.messageServer.SendParam;
 import com.sipc.topicserver.service.openfeign.MessageServer;
 import com.sipc.topicserver.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -45,8 +43,8 @@ public class SubmitConsumer {
     @Resource
     private MessageServer messageServer;
 
-    @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME, concurrency = "1", ackMode = "MANUAL")
-    public void consumer(SubmitParam submitParam, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) throws IOException {
+    @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME, concurrency = "1")
+    public void consumer(SubmitParam submitParam) {
 
         //获取分类id
         Integer categoryId = (Integer)redisUtil.get("categoryName:" + submitParam.getCategory());
@@ -60,14 +58,10 @@ public class SubmitConsumer {
             if (category1 == null) {
                 log.warn("未查到正确的分类id，查询分类名称： {}", submitParam.getCategory());
 
-                log.warn("向用户反馈消息，帖子提交失败，分类错误，用户id: {}，错误分类: {}", submitParam.getUserId(), submitParam.getCategory());
                 SendParam sendParam = new SendParam();
                 sendParam.setUserId(0);
                 sendParam.setToUserId(submitParam.getUserId());
                 sendParam.setContent("分类错误，提交失败");
-
-                //确认消息消费完成
-                channel.basicAck(deliveryTag, false);
 
                 //捕获异常，调用openfeign发送消息可能导致异常导致消息被重复消费
                 try {
@@ -123,8 +117,7 @@ public class SubmitConsumer {
 
         if (insert != 1) {
             log.error("数据库操作异常，帖子提交操作失败，插入数据数：{}, 插入帖子为： {}", insert, post);
-            log.warn("向用户反馈消息，帖子提交失败，插入数据异常，用户id: {}，用户帖子数据: {},插入数: {}",
-                    submitParam.getUserId(), submitParam.toString(), insert);
+
             SendParam sendParam = new SendParam();
             sendParam.setUserId(0);
             sendParam.setToUserId(submitParam.getUserId());
@@ -141,15 +134,12 @@ public class SubmitConsumer {
             return;
         }
 
-        log.info("成功提交帖子， 帖子数据为： {}", post.toString());
         //发送消息
         SendParam sendParam = new SendParam();
         sendParam.setUserId(0);
         sendParam.setToUserId(submitParam.getUserId());
-        sendParam.setContent("提交成功");
+        sendParam.setContent(submitParam.getTitle() + "提交成功");
 
-        //捕获异常，调用openfeign发送消息可能导致异常导致消息被重复消费
-        channel.basicAck(deliveryTag, false);
         try {
             messageServer.send(sendParam);
         } catch (Exception e) {

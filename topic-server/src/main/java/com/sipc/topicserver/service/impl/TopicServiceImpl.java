@@ -12,7 +12,11 @@ import com.sipc.topicserver.pojo.dto.CommonResult;
 import com.sipc.topicserver.pojo.dto.mic.result.GetUserInfoResult;
 import com.sipc.topicserver.pojo.dto.param.*;
 import com.sipc.topicserver.pojo.dto.result.*;
+import com.sipc.topicserver.pojo.dto.result.teamServer.GetTeamIdResult;
+import com.sipc.topicserver.pojo.dto.result.teamServer.GetTeamInfoResult;
+import com.sipc.topicserver.pojo.dto.resultEnum.ResultEnum;
 import com.sipc.topicserver.service.TopicService;
+import com.sipc.topicserver.service.openfeign.TeamServer;
 import com.sipc.topicserver.service.openfeign.UserServer;
 import com.sipc.topicserver.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author o3141
@@ -42,6 +47,9 @@ public class TopicServiceImpl implements TopicService {
     //找不到UserServer的been
     @Resource
     private UserServer userServer;
+
+    @Resource
+    private TeamServer teamServer;
 
     @Resource
     private RedisUtil redisUtil;
@@ -100,7 +108,7 @@ public class TopicServiceImpl implements TopicService {
                         return CommonResult.fail("分类错误");
                     }
                     categoryId = category1.getId();
-                    redisUtil.set("categoryName:" + category, categoryId);
+                    redisUtil.set("categoryName:" + category, categoryId, (long)60, TimeUnit.MINUTES);
                 }
 
                 //输入筛选项
@@ -156,7 +164,7 @@ public class TopicServiceImpl implements TopicService {
         postList = postMapper.selectList(
                 new QueryWrapper<Post>()
                         .allEq(screen)
-                        .le("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
+                        .lt("created_time", LocalDateTime.ofEpochSecond(searchParam.getLastTime(),0,Constant.zoneOffset))
                         .ge("go_time", LocalDateTime.now())
                         .ge("go_time", LocalDateTime.parse(searchParam.getStartTime(),
                                 Constant.dateTimeFormatter))
@@ -166,9 +174,6 @@ public class TopicServiceImpl implements TopicService {
                         .orderByDesc("created_time")
                         .last("limit 10")
         );
-
-
-
 
         //循环填充内容
         for (Post post : postList) {
@@ -257,7 +262,7 @@ public class TopicServiceImpl implements TopicService {
                 log.warn("帖子详情页查询帖子失败， 查询不到， 查询帖子id: {}", postId);
                 return CommonResult.fail("帖子不村子");
             }
-            redisUtil.set("postId:" + postId, post);
+            redisUtil.set("postId:" + postId, post, (long)60, TimeUnit.MINUTES);
         }
 
         //watch_num原子自增
@@ -287,7 +292,7 @@ public class TopicServiceImpl implements TopicService {
 
         Category category = categoryMapper.selectOne(new QueryWrapper<Category>().eq("id", post.getCategoryId()).last("limit 1"));
         if (category == null) {
-            log.warn("");
+
             return CommonResult.fail("查询失败");
         }
         result.setCategory(category.getName());
@@ -311,7 +316,7 @@ public class TopicServiceImpl implements TopicService {
         result.setNum(post.getNumber());
         result.setGoTime(post.getGoTime().format(Constant.dateTimeFormatter));
         result.setIsFinish(post.getIsFinish());
-        result.setNowNum(3);
+        result.setNowNum(getNowNum(postId));
 
         return CommonResult.success(result);
     }
@@ -343,7 +348,7 @@ public class TopicServiceImpl implements TopicService {
         for (Post post : postMapper.selectList(
                 new QueryWrapper<Post>()
                         .eq("author_id", authorId)
-                        .le("created_time", LocalDateTime.ofEpochSecond(lastTime,0,Constant.zoneOffset))
+                        .lt("created_time", LocalDateTime.ofEpochSecond(lastTime,0,Constant.zoneOffset))
                         .last("limit 10")
         )) {
 
@@ -397,8 +402,6 @@ public class TopicServiceImpl implements TopicService {
         //更新了is_deleted字段，删除redis缓存
         redisUtil.remove("postId:" + deleteParam.getPostId());
 
-        log.info("删除帖子操作成功， 删除帖子id： {}， 操作人id： {}", deleteParam.getPostId(), deleteParam.getUserId());
-
         return CommonResult.success("删除成功");
     }
 
@@ -417,8 +420,6 @@ public class TopicServiceImpl implements TopicService {
             return CommonResult.fail("操作失败");
         }
 
-        log.info("延迟帖子成功， 操作帖子id： {}， 延迟时间： {}" , delayParam.getPostId(), delayParam.getTime());
-
         return CommonResult.success("延迟成功");
     }
 
@@ -434,7 +435,7 @@ public class TopicServiceImpl implements TopicService {
                 return null;
             }
             author = serverUserInfo.getData();
-            redisUtil.set("userId:" + authorId, author);
+            redisUtil.set("userId:" + authorId, author, (long)60, TimeUnit.MINUTES);
         }
         return author;
     }
@@ -454,7 +455,7 @@ public class TopicServiceImpl implements TopicService {
                 return null;
             }
             categoryName = category.getName();
-            redisUtil.set("categoryId:" + category.getId(), categoryName);
+            redisUtil.set("categoryId:" + category.getId(), categoryName, (long)60, TimeUnit.MINUTES);
         }
 
         //获取category_next_name
@@ -487,6 +488,22 @@ public class TopicServiceImpl implements TopicService {
         return  waterfall;
     }
 
+    private Integer getNowNum(Integer postId) {
+        CommonResult<GetTeamIdResult> teamIdResult = teamServer.getTeamId(postId);
+        if (!Objects.equals(teamIdResult.getCode(), ResultEnum.SUCCESS.getCode())) {
+            return null;
+        }
+        if (teamIdResult.getData() != null && teamIdResult.getData().getTeamId() != null) {
+            CommonResult<GetTeamInfoResult> teamInfoResult = teamServer.getTeamInfo(teamIdResult.getData().getTeamId());
+            if (!Objects.equals(teamInfoResult.getCode(), ResultEnum.SUCCESS.getCode())) {
+                return null;
+            }
+            if (teamInfoResult.getData() != null && teamInfoResult.getData().getActNum() != null) {
+                return teamInfoResult.getData().getActNum();
+            }
+        }
+        return null;
+    }
 
 
 }
