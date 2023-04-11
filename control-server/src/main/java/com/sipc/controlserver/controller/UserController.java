@@ -2,8 +2,6 @@ package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
 import com.sipc.controlserver.pojo.param.User;
-import com.sipc.controlserver.pojo.param.userServer.DropUserInfoParam;
-import com.sipc.controlserver.pojo.param.userServer.PostNewUserIdParam;
 import com.sipc.controlserver.pojo.param.userServer.UpdateUserInfoParam;
 import com.sipc.controlserver.pojo.result.userServer.AcaMajorInfo;
 import com.sipc.controlserver.pojo.result.userServer.GetUserInfoResult;
@@ -12,9 +10,7 @@ import com.sipc.controlserver.service.feign.UserServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @CrossOrigin
