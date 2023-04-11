@@ -10,9 +10,9 @@ import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -28,6 +28,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 获取用户信息
+     *
      * @param uid 用户ID
      * @return 用户信息
      * @author DoudiNCer
@@ -41,7 +42,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         GetUserInfoResult result = new GetUserInfoResult();
         result.setUserId(uid);
         result.setUsername(userInfo.getUserName());
-        if (userInfo.getAcaMajorId() != null){
+        if (userInfo.getAcaMajorId() != null) {
             AcaMajor acaMajor = acaMajorMapper.selectById(userInfo.getAcaMajorId());
             if (acaMajor == null)
                 return CommonResult.fail("数据错误，查无专业信息");
@@ -57,6 +58,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 获取用户信息
+     *
      * @param param 新用户的 userID 与 openID
      * @return 处理结果，包括用户的UserID、UserName，可能不存在的用户学院、专业、性别、手机号
      * @author DoudiNCer
@@ -81,6 +83,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 删除用户信息
+     *
      * @param param 用户ID
      * @return 处理结果
      * @author DoudiNCer
@@ -95,6 +98,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 更新用户信息
+     *
      * @param param 必须有用户ID（UserID），可选参数有用户名、性别、学院专业ID、手机号
      * @return 处理结果
      * @author DoudiNCer

@@ -22,6 +22,7 @@ import com.sipc.teamserver.service.feign.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 获取队伍（投票）信息
+     *
      * @param id 队伍ID
      * @return 队伍信息，包括队伍 ID、现有投票人数、计划投票人数、同意人数、投票者的用户ID、用户昵称与投票意愿
      * @author DoudiNCer
@@ -52,13 +54,12 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public CommonResult<GetTeamInfoResult> getTeamInfo(Integer id) {
         Team team = teamMapper.selectById(id);
-        if (team == null)
-            return CommonResult.fail("组队不存在");
+        if (team == null) return CommonResult.fail("组队不存在");
         GetTeamInfoResult result = new GetTeamInfoResult();
         result.setTeamId(id);
         var detailNum = topicServer.detailNum(team.getPostId());
 
-        if (!Objects.equals(detailNum.getCode(), "00000")){
+        if (!Objects.equals(detailNum.getCode(), "00000")) {
             detailNum = topicServer.detailNum(id);
         }
         if (!Objects.equals(detailNum.getCode(), "00000"))
@@ -67,19 +68,18 @@ public class TeamServiceImpl implements TeamService {
         List<VoteInfo> votes = new ArrayList<>();
         List<Vote> teamVotes = voteMapper.selectList(new QueryWrapper<Vote>().eq("team_id", id));
         int agreenum = 0;
-        for (Vote vote : teamVotes){
+        for (Vote vote : teamVotes) {
             VoteInfo vi = new VoteInfo();
             vi.setVote(vote.getVote());
             vi.setUserId(vote.getUserId());
             CommonResult<GetUserInfoResult> userInfo = userService.getUserInfo(vote.getUserId());
-            if (!Objects.equals(userInfo.getCode(), "00000")){
+            if (!Objects.equals(userInfo.getCode(), "00000")) {
                 userInfo = userService.getUserInfo(vote.getUserId());
             }
             if (!Objects.equals(userInfo.getCode(), "00000"))
                 return CommonResult.fail("User Server Error: " + userInfo.getMessage());
             vi.setUserName(userInfo.getData().getUsername());
-            if (vote.getVote())
-                agreenum++;
+            if (vote.getVote()) agreenum++;
             votes.add(vi);
         }
         result.setVotes(votes);
@@ -90,32 +90,25 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 提交投票意愿
+     *
      * @param param 用户 ID 、队伍 ID 与投票意愿（是否同意）
      * @return 处理结果
      * @author DoudiNCer
      */
     @Override
     public CommonResult<String> postVote(PostVoteParam param) {
-        Long count = voteMapper.selectCount(
-                new QueryWrapper<Vote>()
-                        .eq("user_id", param.getUserId())
-                        .eq("team_id", param.getTeamId())
-        );
-        if (count != 0){
+        Long count = voteMapper.selectCount(new QueryWrapper<Vote>().eq("user_id", param.getUserId()).eq("team_id", param.getTeamId()));
+        if (count != 0) {
             return CommonResult.fail("请勿重复投票");
         }
-        Long voteCount = voteMapper.selectCount(
-                new QueryWrapper<Vote>()
-                        .eq("team_id", param.getTeamId())
-        );
+        Long voteCount = voteMapper.selectCount(new QueryWrapper<Vote>().eq("team_id", param.getTeamId()));
         var detailNum = topicServer.detailNum(param.getTeamId());
-        if (!Objects.equals(detailNum.getCode(), "00000")){
+        if (!Objects.equals(detailNum.getCode(), "00000")) {
             detailNum = topicServer.detailNum(param.getTeamId());
         }
         if (!Objects.equals(detailNum.getCode(), "00000"))
             return CommonResult.fail("Topic Server Error: " + detailNum.getMessage());
-        if (voteCount >= detailNum.getData().getNum())
-            return CommonResult.fail("投票人数已达上限");
+        if (voteCount >= detailNum.getData().getNum()) return CommonResult.fail("投票人数已达上限");
         Vote vote = new Vote();
         vote.setUserId(param.getUserId());
         vote.setTeamId(param.getTeamId());
@@ -128,33 +121,25 @@ public class TeamServiceImpl implements TeamService {
                 var finishParam = new FinishParam();
                 finishParam.setPostId(team.getPostId());
                 CommonResult<String> finish = topicServer.finish(finishParam);
+                if (!Objects.equals(finish.getCode(), "00000")) finish = topicServer.finish(finishParam);
                 if (!Objects.equals(finish.getCode(), "00000"))
-                    finish = topicServer.finish(finishParam);
-                if (!Objects.equals(finish.getCode(), "00000"))
-                    log.warn("Post Vote Finish Error: " +
-                            "PostID = " + finishParam.getPostId() + ", " +
-                            "TeamID = " + param.getTeamId() + ", " +
-                            "Error: " + finish.getMessage());
-
+                    log.warn("Post Vote Finish Error: " + "PostID = " + finishParam.getPostId() + ", " + "TeamID = " + param.getTeamId() + ", " + "Error: " + finish.getMessage());
             }
             return CommonResult.success("请求正常");
-        }
-        else
-            return CommonResult.fail("数据库错误");
+        } else return CommonResult.fail("数据库错误");
     }
 
     /**
      * 创建组队（投票）
+     *
      * @param param 创建者用户 ID、帖子 ID 与投票结束时间（格式为"yyyy-MM-dd HH:mm:ss"）
      * @return 队伍ID
      * @author DoudiNCer
      */
     @Override
     public CommonResult<PostTeamResult> postTeam(PostTeamParam param) {
-        Long count = teamMapper.selectCount(new QueryWrapper<Team>()
-                .eq("post_id", param.getPostId()));
-        if (count != 0)
-            return CommonResult.fail("投票已存在，请勿重复发起投票");
+        Long count = teamMapper.selectCount(new QueryWrapper<Team>().eq("post_id", param.getPostId()));
+        if (count != 0) return CommonResult.fail("投票已存在，请勿重复发起投票");
         CommonResult<IsAuthorResult> isAuthor = topicServer.isAuthor(param.getUserId(), param.getPostId());
         if (!Objects.equals(isAuthor.getCode(), "00000"))
             isAuthor = topicServer.isAuthor(param.getUserId(), param.getPostId());
@@ -167,13 +152,11 @@ public class TeamServiceImpl implements TeamService {
         team.setPostId(param.getPostId());
         team.setEndTime(LocalDateTime.parse(param.getEndTime(), Constant.dateTimeFormatter));
         team.setStartTime(LocalDateTime.now());
-        if (team.getStartTime().isAfter(team.getEndTime()))
-            return CommonResult.fail("结束时间早于现在，创建投票失败");
+        if (team.getStartTime().isAfter(team.getEndTime())) return CommonResult.fail("结束时间早于现在，创建投票失败");
         team.setCreateTime(LocalDateTime.now());
         team.setUpdateTime(team.getCreateTime());
         int i = teamMapper.insert(team);
-        if (i != 1)
-            return CommonResult.fail("数据库错误");
+        if (i != 1) return CommonResult.fail("数据库错误");
         var result = new PostTeamResult();
         result.setTeamId(team.getId());
         return CommonResult.success(result);
@@ -181,18 +164,16 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 根据帖子 ID 获取队伍（投票）ID
+     *
      * @param id 帖子 ID
      * @return 组队 Id
      * @author DoudiNCer
      */
     @Override
     public CommonResult<GetTeamIdResult> getTeamId(Integer id) {
-        List<Team> teams = teamMapper.selectList(new QueryWrapper<Team>()
-                .eq("post_id", id));
-        if (teams.size() == 0)
-            return CommonResult.fail("组队不存在");
-        if (teams.size() > 1)
-            return CommonResult.fail("数据库错误");
+        List<Team> teams = teamMapper.selectList(new QueryWrapper<Team>().eq("post_id", id));
+        if (teams.size() == 0) return CommonResult.fail("组队不存在");
+        if (teams.size() > 1) return CommonResult.fail("数据库错误");
         var result = new GetTeamIdResult();
         result.setTeamId(teams.get(0).getId());
         return CommonResult.success(result);

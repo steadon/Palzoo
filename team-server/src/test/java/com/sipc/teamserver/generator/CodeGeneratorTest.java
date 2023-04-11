@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.generator.config.TemplateType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import org.apache.ibatis.annotations.Mapper;
 import org.junit.jupiter.api.Test;
-
 import java.util.Collections;
 
 
@@ -54,5 +53,4 @@ public class CodeGeneratorTest {
                 })
                 .execute();
     }
-
 }
