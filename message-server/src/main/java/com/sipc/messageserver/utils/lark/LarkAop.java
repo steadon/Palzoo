@@ -1,7 +1,12 @@
 package com.sipc.messageserver.utils.lark;
 
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * @author tzih
@@ -12,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LarkAop {
 
-//    @Autowired
+//    @Resource
 //    LarkRobot larkRobot;
 //
 //    @Pointcut("execution(* *..controller.*.*(..))")
@@ -22,7 +27,7 @@ public class LarkAop {
 //    @AfterThrowing(pointcut = "lark()", throwing = "exception")
 //    public void larkRobot(JoinPoint point, Exception exception){
 //        if (larkRobot.getDev()) return;
-//        larkRobot.sendExceptionMessage(point, exception);
+////        larkRobot.sendExceptionMessage(point, exception);
 //    }
 
 

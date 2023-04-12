@@ -295,17 +295,27 @@ public class TopicServiceImpl implements TopicService {
         //redis获取用户信息
         GetUserInfoResult author = this.getAuthor(post.getAuthorId());
 
+        UserInfo userInfo = new UserInfo();
         if (author == null) {
             log.warn("帖子详情页异常，获取帖子作者失败，查询作者id：{}， 查询帖子id： {}", post.getAuthorId(), post.getId());
-            return CommonResult.fail("操作异常");
+//            return CommonResult.fail("操作异常");
+            userInfo.setName(null);
+            userInfo.setGender(null);
+            userInfo.setYear(null);
+            userInfo.setSchool(null);
+            userInfo.setAvatarUrl(null);
         }
-
-        UserInfo userInfo = new UserInfo();
-
-        userInfo.setName(author.getUsername());
-        userInfo.setGender(author.getGender());
-        userInfo.setYear(20);
-        userInfo.setSchool("天津理工大学");
+        else {
+            userInfo.setName(author.getUsername());
+            if (userInfo.getGender() != null) {
+                userInfo.setGender(author.getGender());
+            }
+            userInfo.setYear(20);
+            userInfo.setSchool("天津理工大学");
+            if (userInfo.getAvatarUrl() != null) {
+                userInfo.setAvatarUrl(author.getAvatarUrl());
+            }
+        }
 
         //拼装数据
         DetailResult result = new DetailResult();
@@ -349,7 +359,7 @@ public class TopicServiceImpl implements TopicService {
      * 获取用户个人帖子，无论是否完成都会返回
      * @author tzih
      * @param authorId 用户id
-     * @return 返回处理结果，回里包含用户个人帖子的瀑布流和下一次请求的时间参数，瀑布流里有着一个包含帖子信息的列表
+     * @return 返回处理结果，回里包含用户个人帖子列表
      */
     @Override
     public CommonResult<WaterfallResult> author(Integer authorId) {
@@ -361,7 +371,7 @@ public class TopicServiceImpl implements TopicService {
         //设置时间
 
         //
-        LocalDateTime nextTime = LocalDateTime.now();
+//        LocalDateTime nextTime = LocalDateTime.now();
 
         //redis获取用户信息
 //        GetUserInfoResult author = this.getAuthor(authorId);
@@ -392,7 +402,7 @@ public class TopicServiceImpl implements TopicService {
     /**
      * 删除帖子
      * @author tzih
-     * @param deleteParam 删除帖子接口所需要的参数，userId,
+     * @param deleteParam 删除帖子接口所需要的参数。userId：用户id；postId：帖子id
      * @return 返回处理结果，删除帖子是否成功
      */
     @Override
@@ -436,6 +446,12 @@ public class TopicServiceImpl implements TopicService {
         return CommonResult.success("删除成功");
     }
 
+    /**
+     * 延时帖子集合时间接口（目前不作使用）
+     * @author tzih
+     * @param delayParam 延时帖子接口集合时间所需的参数。postId：帖子id；time：延时时间
+     * @return 返回处理结果，是否成功延时帖子
+     */
     @Override
     public CommonResult<String> delay(DelayParam delayParam) {
 
@@ -454,6 +470,12 @@ public class TopicServiceImpl implements TopicService {
         return CommonResult.success("延迟成功");
     }
 
+    /**
+     * 获取用户信息，调用user-server的getUserInfo接口，获取GetUserInfoResult
+     * @author tzih
+     * @param authorId 用户id
+     * @return 返回请求的结果，包含用户信息
+     */
     private GetUserInfoResult getAuthor(Integer authorId) {
         //redis获取用户信息
         GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("userId:" + authorId);
@@ -471,6 +493,12 @@ public class TopicServiceImpl implements TopicService {
         return author;
     }
 
+    /**
+     * 拼装帖子列表里的帖子信息
+     * @author tzih
+     * @param post 帖子的数据库实体类
+     * @return 返回瓶拼装的帖子列表里的帖子信息
+     */
     //拼装waterfall
     private Waterfall setWaterfall(Post post) {
 
@@ -519,6 +547,13 @@ public class TopicServiceImpl implements TopicService {
         return  waterfall;
     }
 
+    /**
+     * 获取当前帖子所组织活动的已经组队的人数，通过调用team-server的接口getTeamId获取teamId，然后利用getTeamInfo接口获取队伍信息，
+     * 然后获得队伍信息
+     * @author tzih
+     * @param postId 帖子id
+     * @return 返回前帖子所组织活动的已经组队的人数
+     */
     private Integer getNowNum(Integer postId) {
         CommonResult<GetTeamIdResult> teamIdResult = teamServer.getTeamId(postId);
         if (!Objects.equals(teamIdResult.getCode(), ResultEnum.SUCCESS.getCode())) {

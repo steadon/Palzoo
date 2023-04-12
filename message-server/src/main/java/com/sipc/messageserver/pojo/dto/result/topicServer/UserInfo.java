@@ -1,4 +1,4 @@
-package com.sipc.topicserver.pojo.dto.result;
+package com.sipc.messageserver.pojo.dto.result.topicServer;
 
 import lombok.Data;
 

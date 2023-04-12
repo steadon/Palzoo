@@ -8,7 +8,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-//@Import(JacksonConfiguration.class)
 public class TopicServerApplication {
 
     public static void main(String[] args) {

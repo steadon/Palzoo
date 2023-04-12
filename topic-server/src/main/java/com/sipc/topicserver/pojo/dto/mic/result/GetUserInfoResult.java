@@ -22,6 +22,7 @@ public class GetUserInfoResult implements Serializable {
     private String major;
     private String gender;
     private String phone;
+    private String avatarUrl;
 
     public GetUserInfoResult() {}
 
