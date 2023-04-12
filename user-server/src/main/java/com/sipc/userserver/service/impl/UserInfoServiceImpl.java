@@ -121,7 +121,12 @@ public class UserInfoServiceImpl implements UserInfoService {
             userInfo.setGender(param.getGender());
         if (param.getAvatarUrl() != null && param.getAvatarUrl().length() != 0)
             userInfo.setAvatarUrl(param.getAvatarUrl());
-        userInfoMapper.updateById(userInfo);
-        return CommonResult.success("请求正常");
+        var update = userInfoMapper.updateById(userInfo);
+        if (update == 0)
+            return CommonResult.fail("没有数据被更新");
+        else if (update > 1)
+            return CommonResult.fail("数据库错误");
+        else
+            return CommonResult.success("请求正常");
     }
 }
