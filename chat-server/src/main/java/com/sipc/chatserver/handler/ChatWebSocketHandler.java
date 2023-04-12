@@ -12,9 +12,11 @@ import com.sipc.chatserver.pojo.domain.Room;
 import com.sipc.chatserver.pojo.domain.RoomUserMerge;
 import com.sipc.chatserver.pojo.domain.User;
 import com.sipc.chatserver.pojo.param.ChatMsg;
+import com.sipc.chatserver.pojo.param.GetUserInfoParam;
 import com.sipc.chatserver.pojo.param.OpenidAndPostId;
 import com.sipc.chatserver.pojo.param.SendMsg;
-import com.sipc.chatserver.service.feign.LoginServer;
+import com.sipc.chatserver.service.feign.UserServer;
+import com.sipc.chatserver.service.impl.FeignImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -50,16 +52,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final RoomUserMergeMapper roomUserMergeMapper;
     private final MessageMapper messageMapper;
     private final ObjectMapper objectMapper;
-    private final LoginServer loginServer;
     private final RoomMapper roomMapper;
+    private final UserServer userServer;
+    private final FeignImpl feignImpl;
 
     @Autowired
-    public ChatWebSocketHandler(ObjectMapper objectMapper, RoomMapper roomMapper, RoomUserMergeMapper roomUserMergeMapper, MessageMapper messageMapper, LoginServer loginServer) {
+    public ChatWebSocketHandler(ObjectMapper objectMapper, RoomMapper roomMapper, RoomUserMergeMapper roomUserMergeMapper, MessageMapper messageMapper, UserServer userServer, FeignImpl feignImpl) {
         this.roomUserMergeMapper = roomUserMergeMapper;
         this.messageMapper = messageMapper;
         this.objectMapper = objectMapper;
-        this.loginServer = loginServer;
         this.roomMapper = roomMapper;
+        this.userServer = userServer;
+        this.feignImpl = feignImpl;
     }
 
     /**
@@ -75,7 +79,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String openid = openidAndPostId.getOpenid();
 
             //获取user和room
-            User user = loginServer.getUser(openid);
+            User user = feignImpl.getUser(openid);
             if (user == null) throw new BusinessException("[Websocket]Invalid user");
             Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
             if (room == null) {
@@ -83,22 +87,28 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
             }
 
+            Integer userId = user.getId();
+            Integer roomId = room.getId();
+
             //数据库记录用户进入聊天室信息
-            if (roomUserMergeMapper.insert(new RoomUserMerge(user.getId(), room.getId())) == 0)
+            if (roomUserMergeMapper.insert(new RoomUserMerge(userId, roomId)) == 0)
                 throw new BusinessException("[Websocket]Insert failed");
 
             //内存中保存信息
-            rooms.computeIfAbsent(room.getId(), k -> new CopyOnWriteArrayList<>()).add(session);
+            rooms.computeIfAbsent(roomId, k -> new CopyOnWriteArrayList<>()).add(session);
+
+            //获取用户信息
+            GetUserInfoParam data = userServer.getUserInfo(userId).getData();
 
             //推送历史消息
-            pushHistoryMsg(session, room.getId());
+            pushHistoryMsg(session, roomId, data.getUsername(), data.getAvatarUrl());
 
             //系统消息json化
             String time = LocalDateTime.now().format(formatter);
-            String systemMsg = JSONObject.toJSONString(new SendMsg(time, user.getOpenid() + ",进入了聊天室", "system"));
+            String systemMsg = JSONObject.toJSONString(new SendMsg(time, user.getOpenid() + ",进入了聊天室", "system", "system", "system"));
 
             //广播用户加入的消息
-            broadcast(room.getId(), systemMsg);
+            broadcast(roomId, systemMsg);
         } catch (Exception e) {
             log.error("[Websocket]Error occurred while establishing connection.", e);
         }
@@ -117,9 +127,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String postId = openidAndPostId.getPostId();
             String openid = openidAndPostId.getOpenid();
 
-            //获取room
+            //获取user和room
+            User user = feignImpl.getUser(openid);
             Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
             if (room == null) throw new BusinessException("[Websocket]Room is not exit");
+
+            Integer userId = user.getId();
             Integer roomId = room.getId();
 
             //获取消息
@@ -129,9 +142,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             if (messageMapper.insert(new Message(openid, roomId, chatMsg)) == 0)
                 throw new BusinessException("[Websocket]Lost msg:" + chatMsg);
 
+            //获取用户信息
+            GetUserInfoParam data = userServer.getUserInfo(userId).getData();
+
             //用户消息json化
             String time = LocalDateTime.now().format(formatter);
-            String msg = JSONObject.toJSONString(new SendMsg(time, chatMsg, openid));
+            String msg = JSONObject.toJSONString(new SendMsg(time, chatMsg, openid, data.getUsername(), data.getAvatarUrl()));
 
             //广播新消息 - 排除用户本人
             broadcast(roomId, msg, openid);
@@ -154,9 +170,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             String openid = openidAndPostId.getOpenid();
 
             //获取user和room
-            User user = loginServer.getUser(openid);
+            User user = feignImpl.getUser(openid);
             Room room = roomMapper.selectOne(new QueryWrapper<Room>().eq("post_id", postId));
             if (user == null || room == null) throw new BusinessException("[Websocket]Invalid room or user");
+
             Integer userId = user.getId();
             Integer roomId = room.getId();
 
@@ -171,7 +188,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
             //系统消息json化
             String time = LocalDateTime.now().format(formatter);
-            String systemMsg = JSONObject.toJSONString(new SendMsg(time, openid + ",离开了聊天室", "system"));
+            String systemMsg = JSONObject.toJSONString(new SendMsg(time, openid + ",离开了聊天室", "system", "system", "system"));
 
             //广播用户离开的消息
             broadcast(roomId, systemMsg);
@@ -224,11 +241,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      *
      * @param session 会话连接
      */
-    private void pushHistoryMsg(WebSocketSession session, Integer roomId) {
+    private void pushHistoryMsg(WebSocketSession session, Integer roomId, String username, String avatarUrl) {
         //遍历roomId相符合的message推送给该会话
         messageMapper.selectList(new QueryWrapper<Message>().eq("room_id", roomId)).forEach(msg -> {
             try {
-                session.sendMessage(new TextMessage(JSONObject.toJSONString(new SendMsg(msg.getCreateTime().format(formatter), msg.getMessage(), msg.getOpenid()))));
+                session.sendMessage(new TextMessage(JSONObject.toJSONString(new SendMsg(msg.getCreateTime().format(formatter), msg.getMessage(), msg.getOpenid(), username, avatarUrl))));
             } catch (IOException e) {
                 log.error("[Websocket]Error occurred while broadcasting message", e);
             }
