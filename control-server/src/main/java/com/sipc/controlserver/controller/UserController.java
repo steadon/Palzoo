@@ -10,6 +10,8 @@ import com.sipc.controlserver.service.feign.UserServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Slf4j
@@ -59,5 +61,18 @@ public class UserController {
     @GetMapping("user/acamajor/get")
     public CommonResult<List<AcaMajorInfo>> getAllAcaMajorInfo() {
         return userServer.getAllAcamajorInfo();
+    }
+
+    @PostMapping("user/info/updateAvatar")
+    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("openId") String openId){
+        // 鉴权
+        try {
+            loginServer.checkRole(openId);
+        } catch (RuntimeException e) {
+            log.info("check role failed: " + e);
+        }
+        //openid 获取 uid
+        User user = loginServer.getUser(openId);
+        return userServer.updateUserAvatar(avatar, user.getId());
     }
 }

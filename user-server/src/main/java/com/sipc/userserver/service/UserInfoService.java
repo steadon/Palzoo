@@ -5,6 +5,7 @@ import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserInfoService {
 
@@ -39,4 +40,6 @@ public interface UserInfoService {
      * @author DoudiNCer
      */
     CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param);
+
+    CommonResult<String> UpdateUserAvatar(MultipartFile avatar, Integer userId);
 }

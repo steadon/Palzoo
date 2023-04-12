@@ -55,3 +55,9 @@ mybatis-plus:
 logging:
   level:
     com.sipc.mmtbackend.mapper: debug
+
+minio:
+  endpoint: http://127.0.0.1:9000 #Minio服务所在地址
+  bucketName: palzoo #存储桶名称
+  accessKey: palzoo #访问的key
+  secretKey: minioadmin #访问的秘钥

@@ -8,6 +8,7 @@ import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user")
@@ -61,5 +62,10 @@ public class UserInfoController {
     @PostMapping("/info/update")
     public CommonResult<String> updateUserInfo(@RequestBody UpdateUserInfoParam param){
         return userInfoService.UpdateUserInfo(param);
+    }
+
+    @PostMapping("/info/updateAvatar")
+    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("userId") Integer userId){
+        return userInfoService.UpdateUserAvatar(avatar, userId);
     }
 }

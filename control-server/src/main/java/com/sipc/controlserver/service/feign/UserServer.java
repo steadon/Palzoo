@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,4 +31,7 @@ public interface UserServer {
 
     @GetMapping("/user/acamajor/get")
     CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo();
+
+    @PostMapping("/user/info/updateAvatar")
+    CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestParam("userId") Integer userId);
 }
