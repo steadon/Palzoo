@@ -79,6 +79,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             result.setGender(userInfo.getGender() ? "男" : "女");
         if (userInfo.getAvatarUrl() != null)
             result.setAvatarUrl(MinioUtil.getPictureURL(userInfo.getAvatarUrl()));
+        else
+            result.setAvatarUrl(MinioUtil.getPictureURL("Head"));
         return CommonResult.success(result);
     }
 
@@ -96,7 +98,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         UserInfo ui = new UserInfo();
         ui.setUserId(param.getUserId());
-        ui.setAvatarUrl("Head");
         ui.setCreateTime(LocalDateTime.now());
         ui.setUpdateTime(LocalDateTime.now());
         ui.setIsDeleted((byte) 0);
