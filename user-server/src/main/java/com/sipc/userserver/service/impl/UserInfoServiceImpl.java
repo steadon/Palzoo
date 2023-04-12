@@ -59,10 +59,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
-     * 获取用户信息
-     *
+     * 创建新用户信息
      * @param param 新用户的 userID 与 openID
-     * @return 处理结果，包括用户的UserID、UserName，可能不存在的用户学院、专业、性别、手机号、用户头像
+     * @return 处理结果
      * @author DoudiNCer
      */
     @Override
@@ -73,7 +72,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         UserInfo ui = new UserInfo();
         ui.setUserId(param.getUserId());
-        ui.setUserName("param.getUserName()");
         ui.setCreateTime(LocalDateTime.now());
         ui.setUpdateTime(LocalDateTime.now());
         ui.setIsDeleted((byte) 0);
