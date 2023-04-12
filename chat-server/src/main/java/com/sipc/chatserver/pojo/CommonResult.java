@@ -46,4 +46,8 @@ public class CommonResult<T> {
     public static <T> CommonResult<T> fail(String message) {
         return new CommonResult<>(ResultEnum.FAILED.getCode(), message, null);
     }
+
+    public CommonResult() {
+
+    }
 }
