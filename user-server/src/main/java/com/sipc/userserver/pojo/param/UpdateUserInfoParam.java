@@ -18,6 +18,4 @@ public class UpdateUserInfoParam {
     private Boolean gender;
     // 手机号
     private String phone;
-    // 用户头像
-    private String avatarUrl;
 }
