@@ -12,11 +12,16 @@ import com.sipc.topicserver.pojo.dto.param.SubmitParam;
 import com.sipc.topicserver.pojo.dto.param.messageServer.SendParam;
 import com.sipc.topicserver.service.openfeign.MessageServer;
 import com.sipc.topicserver.util.RedisUtil;
+import com.sipc.topicserver.util.ac.ACResult;
+import com.sipc.topicserver.util.ac.ACUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -42,6 +47,9 @@ public class SubmitConsumer {
 
     @Resource
     private MessageServer messageServer;
+
+    @Resource
+    private ACUtil acUtil;
 
     @RabbitListener(queues = DirectRabbitConfig.QUEUE_NAME, concurrency = "1")
     public void consumer(SubmitParam submitParam) {
@@ -75,6 +83,45 @@ public class SubmitConsumer {
             categoryId = category1.getId();
             redisUtil.set("categoryName:" + submitParam.getCategory(), categoryId);
         }
+
+        //检验敏感词
+        ACResult check = acUtil.check(submitParam.getTitle(), submitParam.getContext());
+        if (check != null && check.getStatusCode() == 0 ) {
+            if (check.getTitleList() != null || check.getContentList() != null) {
+
+//                StringBuilder stringBuilder = new StringBuilder();
+//
+//                stringBuilder.append("您的帖子含有违禁词语，请您修正。</br>违禁词语如下：</br>");
+//
+//                if (check.getTitleList() != null) {
+//                    stringBuilder.append("标题：");
+//                    stringBuilder.append(check.getTitleList());
+//                    stringBuilder.append("</br>");
+//                }
+//
+//                if (check.getContentList() != null) {
+//                    stringBuilder.append("文本：");
+//                    stringBuilder.append(check.getContentList());
+//                    stringBuilder.append("</br>");
+//                }
+
+                SendParam sendParam = new SendParam();
+
+                sendParam.setUserId(0);
+                sendParam.setToUserId(submitParam.getUserId());
+                sendParam.setContent("您的帖子含有违禁词语，请您修正。");
+
+                //捕获异常，调用openfeign发送消息可能导致异常导致消息被重复消费
+                try {
+                    messageServer.send(sendParam);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.info("发送消息异常：{}", e.toString());
+                }
+                return;
+            }
+        }
+
 
         //获取子标签id
         Integer authorId = submitParam.getUserId();

@@ -10,10 +10,12 @@ import lombok.Data;
 @Data
 public class MessageResult {
 
+    private Integer postId;
+
     private String authorName;
 
     private String content;
 
-    private String time;
+    private String url;
 
 }

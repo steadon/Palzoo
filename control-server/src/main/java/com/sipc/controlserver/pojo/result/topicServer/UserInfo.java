@@ -18,5 +18,6 @@ public class UserInfo {
 
     private String gender;
 
+    private String avatarUrl;
 
 }

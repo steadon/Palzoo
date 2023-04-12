@@ -1,8 +1,10 @@
 package com.sipc.messageserver.utils.lark;
 
 import lombok.Data;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 
@@ -20,13 +22,14 @@ public class LarkRobot {
 
     private String url;
 
-    private Entry entry;
+    private static Entry entry;
 
-//    @Resource
-//    private
-
-//    public void send() {
 //
-//    }
+//    @Resource
+//    private RestTemplate restTemplate;
+
+    public void send(JoinPoint joinPoint, Exception exception) {
+//        joinPoint
+    }
 
 }

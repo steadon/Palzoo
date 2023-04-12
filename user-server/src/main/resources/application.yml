@@ -52,12 +52,13 @@ mybatis-plus:
       logic-delete-field: is_deleted  # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+
 logging:
   level:
     com.sipc.mmtbackend.mapper: debug
 
 minio:
-  endpoint: http://127.0.0.1:9000 #Minio服务所在地址
+  endpoint: http://www.haorui.xyz:19000 #Minio服务所在地址
   bucketName: palzoo #存储桶名称
   accessKey: palzoo #访问的key
-  secretKey: minioadmin #访问的秘钥
+  secretKey: PalzooPass #访问的秘钥

@@ -17,4 +17,6 @@ public class Constant {
 
     public static final ZoneOffset zoneOffset = ZoneOffset.ofHours(8);
 
+    public static final String checkURL = "http://43.142.146.75:8089/api/check";
+
 }

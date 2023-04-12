@@ -22,6 +22,12 @@ public class CheckServiceImpl implements CheckService {
     @Resource
     private PostMapper postMapper;
 
+    /**
+     * 帖子所组织活动的期望人数
+     * @author tzih
+     * @param postId 帖子id
+     * @return 返回处理的结果，包含帖子所组织活动的期望人数
+     */
     @Override
     public CommonResult<DetailNumResult> detailNum(Integer postId) {
 
