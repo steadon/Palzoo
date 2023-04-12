@@ -42,13 +42,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         var userInfo = new UserInfo();
         var userIdKey = redisUtil.getUserIdKey(uid);
         var redisUi = redisUtil.get(userIdKey);
-        if (redisUi == null) {
+        if (redisUi instanceof UserInfo) {
+                userInfo = (UserInfo) redisUi;
+        } else {
             userInfo = userInfoMapper.selectById(uid);
             if (userInfo == null)
                 return CommonResult.fail("查无此人");
             redisUtil.set(userIdKey, userInfo);
-        } else
-            userInfo = (UserInfo) redisUi;
+        }
         GetUserInfoResult result = new GetUserInfoResult();
         result.setUserId(uid);
         result.setUsername(userInfo.getUserName());
@@ -103,6 +104,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         int i = userInfoMapper.deleteById(param.getUserId());
         if (i != 1)
             return CommonResult.fail("系统错误");
+        redisUtil.remove(redisUtil.getUserIdKey(param.getUserId()));
         return CommonResult.success("请求正常");
     }
 
@@ -135,7 +137,11 @@ public class UserInfoServiceImpl implements UserInfoService {
             return CommonResult.fail("没有数据被更新");
         else if (update > 1)
             return CommonResult.fail("数据库错误");
-        else
+        else {
+            String userIdKey = redisUtil.getUserIdKey(param.getUserId());
+            redisUtil.remove(userIdKey);
+            redisUtil.set(userIdKey, userInfo);
             return CommonResult.success("请求正常");
+        }
     }
 }
