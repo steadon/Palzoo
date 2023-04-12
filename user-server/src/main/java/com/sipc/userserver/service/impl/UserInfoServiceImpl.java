@@ -1,5 +1,6 @@
 package com.sipc.userserver.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sipc.userserver.mapper.AcaMajorMapper;
 import com.sipc.userserver.mapper.UserInfoMapper;
 import com.sipc.userserver.pojo.CommonResult;
@@ -105,21 +106,20 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param) {
-        UserInfo old = userInfoMapper.selectById(param.getUserId());
-        if (old == null)
+        UserInfo userInfo = userInfoMapper.selectById(param.getUserId());
+        if (userInfo == null)
             return CommonResult.fail("用户不存在");
-        UserInfo userInfo = new UserInfo();
         userInfo.setUserId(param.getUserId());
         userInfo.setUpdateTime(LocalDateTime.now());
-        if (param.getUserName() != null)
+        if (param.getUserName() != null && param.getUserName().length() != 0)
             userInfo.setUserName(param.getUserName());
-        if (param.getAcaMajorId() != null)
+        if (param.getAcaMajorId() != null && param.getAcaMajorId() != 0)
             userInfo.setAcaMajorId(param.getAcaMajorId());
-        if (param.getPhone() != null)
+        if (param.getPhone() != null && param.getPhone().length() != 0)
             userInfo.setPhone(param.getPhone());
         if (param.getGender() != null)
             userInfo.setGender(param.getGender());
-        if (param.getAvatarUrl() != null)
+        if (param.getAvatarUrl() != null && param.getAvatarUrl().length() != 0)
             userInfo.setAvatarUrl(param.getAvatarUrl());
         userInfoMapper.updateById(userInfo);
         return CommonResult.success("请求正常");
