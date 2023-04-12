@@ -1,5 +1,6 @@
 package com.sipc.userserver.service.impl;
 
+import com.sipc.userserver.config.MinioConfig;
 import com.sipc.userserver.mapper.AcaMajorMapper;
 import com.sipc.userserver.mapper.UserInfoMapper;
 import com.sipc.userserver.pojo.CommonResult;
@@ -7,26 +8,39 @@ import com.sipc.userserver.pojo.domain.AcaMajor;
 import com.sipc.userserver.pojo.domain.UserInfo;
 import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
+import com.sipc.userserver.pojo.param.UpdateUserAvatarParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
+import com.sipc.userserver.util.MinioUtil;
 import com.sipc.userserver.util.RedisUtil;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class UserInfoServiceImpl implements UserInfoService {
     private final UserInfoMapper userInfoMapper;
     private final AcaMajorMapper acaMajorMapper;
+    private final MinioClient minioClient;
+    private final MinioConfig minioConfig;
 
     private final RedisUtil redisUtil;
 
     @Autowired
-    public UserInfoServiceImpl(UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper, RedisUtil redisUtil) {
+    public UserInfoServiceImpl(UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper, MinioClient minioClient, MinioConfig minioConfig, RedisUtil redisUtil) {
         this.userInfoMapper = userInfoMapper;
         this.acaMajorMapper = acaMajorMapper;
+        this.minioClient = minioClient;
+        this.minioConfig = minioConfig;
         this.redisUtil = redisUtil;
     }
 
@@ -65,7 +79,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userInfo.getGender() != null)
             result.setGender(userInfo.getGender() ? "男" : "女");
         if (userInfo.getAvatarUrl() != null)
-            result.setAvatarUrl(userInfo.getAvatarUrl());
+            result.setAvatarUrl(MinioUtil.getPictureURL(userInfo.getAvatarUrl()));
         return CommonResult.success(result);
     }
 
@@ -83,6 +97,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         UserInfo ui = new UserInfo();
         ui.setUserId(param.getUserId());
+        ui.setAvatarUrl("Head");
         ui.setCreateTime(LocalDateTime.now());
         ui.setUpdateTime(LocalDateTime.now());
         ui.setIsDeleted((byte) 0);
@@ -130,8 +145,6 @@ public class UserInfoServiceImpl implements UserInfoService {
             userInfo.setPhone(param.getPhone());
         if (param.getGender() != null)
             userInfo.setGender(param.getGender());
-        if (param.getAvatarUrl() != null && param.getAvatarUrl().length() != 0)
-            userInfo.setAvatarUrl(param.getAvatarUrl());
         var update = userInfoMapper.updateById(userInfo);
         if (update == 0)
             return CommonResult.fail("没有数据被更新");
@@ -143,5 +156,52 @@ public class UserInfoServiceImpl implements UserInfoService {
             redisUtil.set(userIdKey, userInfo);
             return CommonResult.success("请求正常");
         }
+    }
+
+    /**
+     * @param file 头像文件
+     * @param param 用户ID
+     * @return 处理结果
+     */
+    @Override
+    public CommonResult<String> UpdateUserAvatar(MultipartFile file, UpdateUserAvatarParam param) {
+        UserInfo userInfo = userInfoMapper.selectById(param.getUserId());
+        if (userInfo == null)
+            return CommonResult.fail("用户不存在");
+        if (userInfo.getAvatarUrl() != null && userInfo.getAvatarUrl().length() != 0){
+            try {
+                minioClient.removeObject(RemoveObjectArgs.builder().
+                        bucket(minioConfig.getBucketName())
+                        .object(userInfo.getAvatarUrl() + MinioUtil.URLEnd)
+                        .build());
+            } catch (Throwable e) {
+               log.warn("Minio Delete File Error: FileName: " + userInfo.getAvatarUrl() + "\n + Error: " + e.getMessage() );
+            }
+        }
+        String newUserAvatar = MinioUtil.hashFile(userInfo.getUserId());
+        InputStream is = null;
+        try {
+            is = file.getInputStream();
+            minioClient.putObject(PutObjectArgs.builder()
+                            .bucket(minioConfig.getBucketName())
+                            .object(newUserAvatar + MinioUtil.URLEnd)
+                            .stream(is, file.getSize(), -1)
+                            .build());
+            is.close();
+        } catch (Throwable e) {
+            log.warn("Upload New Avatar Error: " + e.getMessage());
+        } finally {
+            try {
+                is.close();
+            } catch (Throwable e){
+
+            }
+        }
+        userInfo.setAvatarUrl(newUserAvatar);
+        userInfoMapper.updateById(userInfo);
+        String userIdKey = redisUtil.getUserIdKey(userInfo.getUserId());
+        redisUtil.remove(userIdKey);
+        redisUtil.set(userIdKey, userInfo);
+        return CommonResult.success("请求正常");
     }
 }

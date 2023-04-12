@@ -2,6 +2,7 @@ package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
 import com.sipc.controlserver.pojo.param.User;
+import com.sipc.controlserver.pojo.param.userServer.UpdateUserAvatarParam;
 import com.sipc.controlserver.pojo.param.userServer.UpdateUserInfoParam;
 import com.sipc.controlserver.pojo.result.userServer.AcaMajorInfo;
 import com.sipc.controlserver.pojo.result.userServer.GetUserInfoResult;
@@ -10,6 +11,8 @@ import com.sipc.controlserver.service.feign.UserServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Slf4j
@@ -59,5 +62,19 @@ public class UserController {
     @GetMapping("user/acamajor/get")
     public CommonResult<List<AcaMajorInfo>> getAllAcaMajorInfo() {
         return userServer.getAllAcamajorInfo();
+    }
+
+    @PostMapping("user/info/updateAvatar")
+    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestBody UpdateUserAvatarParam param){
+        // 鉴权
+        try {
+            loginServer.checkRole(param.getOpenId());
+        } catch (RuntimeException e) {
+            log.info("check role failed: " + e);
+        }
+        //openid 获取 uid
+        User user = loginServer.getUser(param.getOpenId());
+        param.setUserId(user.getId());
+        return userServer.updateUserAvatar(file, param);
     }
 }
