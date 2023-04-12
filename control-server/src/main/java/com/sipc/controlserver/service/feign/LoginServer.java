@@ -1,10 +1,10 @@
 package com.sipc.controlserver.service.feign;
 
 import com.sipc.controlserver.pojo.CommonResult;
-import com.sipc.controlserver.pojo.param.LevelParam;
-import com.sipc.controlserver.pojo.param.OpenIdParam;
-import com.sipc.controlserver.pojo.param.SignInParam;
-import com.sipc.controlserver.pojo.param.User;
+import com.sipc.controlserver.pojo.param.loginServer.LevelParam;
+import com.sipc.controlserver.pojo.param.loginServer.OpenIdParam;
+import com.sipc.controlserver.pojo.param.loginServer.SignInParam;
+import com.sipc.controlserver.pojo.param.loginServer.User;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
