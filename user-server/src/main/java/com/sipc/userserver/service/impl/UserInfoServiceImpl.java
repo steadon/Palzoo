@@ -1,6 +1,5 @@
 package com.sipc.userserver.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sipc.userserver.mapper.AcaMajorMapper;
 import com.sipc.userserver.mapper.UserInfoMapper;
 import com.sipc.userserver.pojo.CommonResult;
@@ -11,6 +10,7 @@ import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
+import com.sipc.userserver.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +21,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final UserInfoMapper userInfoMapper;
     private final AcaMajorMapper acaMajorMapper;
 
+    private final RedisUtil redisUtil;
+
     @Autowired
-    public UserInfoServiceImpl(UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper) {
+    public UserInfoServiceImpl(UserInfoMapper userInfoMapper, AcaMajorMapper acaMajorMapper, RedisUtil redisUtil) {
         this.userInfoMapper = userInfoMapper;
         this.acaMajorMapper = acaMajorMapper;
+        this.redisUtil = redisUtil;
     }
 
     /**
@@ -36,10 +39,16 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public CommonResult<GetUserInfoResult> getUserInfo(Integer uid) {
-        UserInfo userInfo = userInfoMapper.selectById(uid);
-        if (userInfo == null)
-            return CommonResult.fail("查无此人");
-
+        var userInfo = new UserInfo();
+        var userIdKey = redisUtil.getUserIdKey(uid);
+        var redisUi = redisUtil.get(userIdKey);
+        if (redisUi == null) {
+            userInfo = userInfoMapper.selectById(uid);
+            if (userInfo == null)
+                return CommonResult.fail("查无此人");
+            redisUtil.set(userIdKey, userInfo);
+        } else
+            userInfo = (UserInfo) redisUi;
         GetUserInfoResult result = new GetUserInfoResult();
         result.setUserId(uid);
         result.setUsername(userInfo.getUserName());
