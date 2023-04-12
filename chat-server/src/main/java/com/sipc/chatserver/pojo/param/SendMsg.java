@@ -19,6 +19,10 @@ public class SendMsg {
      */
     private String openid;
 
+    private String username;
+
+    private String avatarUrl;
+
     public SendMsg() {
         //此无参构造用于反序列化，不可删除
     }

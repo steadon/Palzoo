@@ -1,9 +1,9 @@
 package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
-import com.sipc.controlserver.pojo.param.LevelParam;
-import com.sipc.controlserver.pojo.param.OpenIdParam;
-import com.sipc.controlserver.pojo.param.SignInParam;
+import com.sipc.controlserver.pojo.param.loginServer.LevelParam;
+import com.sipc.controlserver.pojo.param.loginServer.OpenIdParam;
+import com.sipc.controlserver.pojo.param.loginServer.SignInParam;
 import com.sipc.controlserver.service.feign.LoginServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

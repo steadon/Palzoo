@@ -7,10 +7,7 @@ import com.sipc.loginserver.exception.BusinessException;
 import com.sipc.loginserver.mapper.UserMapper;
 import com.sipc.loginserver.pojo.CommonResult;
 import com.sipc.loginserver.pojo.domain.User;
-import com.sipc.loginserver.pojo.param.DropUserInfoParam;
-import com.sipc.loginserver.pojo.param.OpenIdParam;
-import com.sipc.loginserver.pojo.param.PostNewUserIdParam;
-import com.sipc.loginserver.pojo.param.SignInParam;
+import com.sipc.loginserver.pojo.param.*;
 import com.sipc.loginserver.service.LoginService;
 import com.sipc.loginserver.service.feign.UserServer;
 import com.sipc.loginserver.util.WechatCommonUtil;
@@ -96,7 +93,10 @@ public class LoginServiceImpl implements LoginService {
             String code = userServer.postNewUserInfo(new PostNewUserIdParam(user.getId(), user.getOpenid())).getCode();
             if (!Objects.equals(code, "00000")) throw new BusinessException("user-server新增用户异常");
         }
-        return CommonResult.success(new OpenIdParam(sessionKey, openid));
+
+        //获取用户名和头像
+        GetUserInfoParam data = userServer.getUserInfo(user.getId()).getData();
+        return CommonResult.success(new OpenIdParam(sessionKey, openid, data.getUsername(), data.getAvatarUrl()));
     }
 
     /**
