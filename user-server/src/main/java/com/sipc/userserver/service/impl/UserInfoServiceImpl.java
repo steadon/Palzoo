@@ -1,5 +1,6 @@
 package com.sipc.userserver.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sipc.userserver.mapper.AcaMajorMapper;
 import com.sipc.userserver.mapper.UserInfoMapper;
 import com.sipc.userserver.pojo.CommonResult;
@@ -59,10 +60,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
-     * 获取用户信息
-     *
+     * 创建新用户信息
      * @param param 新用户的 userID 与 openID
-     * @return 处理结果，包括用户的UserID、UserName，可能不存在的用户学院、专业、性别、手机号、用户头像
+     * @return 处理结果
      * @author DoudiNCer
      */
     @Override
@@ -73,7 +73,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         UserInfo ui = new UserInfo();
         ui.setUserId(param.getUserId());
-        ui.setUserName("param.getUserName()");
         ui.setCreateTime(LocalDateTime.now());
         ui.setUpdateTime(LocalDateTime.now());
         ui.setIsDeleted((byte) 0);
@@ -107,21 +106,20 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public CommonResult<String> UpdateUserInfo(UpdateUserInfoParam param) {
-        UserInfo old = userInfoMapper.selectById(param.getUserId());
-        if (old == null)
+        UserInfo userInfo = userInfoMapper.selectById(param.getUserId());
+        if (userInfo == null)
             return CommonResult.fail("用户不存在");
-        UserInfo userInfo = new UserInfo();
         userInfo.setUserId(param.getUserId());
         userInfo.setUpdateTime(LocalDateTime.now());
-        if (param.getUserName() != null)
+        if (param.getUserName() != null && param.getUserName().length() != 0)
             userInfo.setUserName(param.getUserName());
-        if (param.getAcaMajorId() != null)
+        if (param.getAcaMajorId() != null && param.getAcaMajorId() != 0)
             userInfo.setAcaMajorId(param.getAcaMajorId());
-        if (param.getPhone() != null)
+        if (param.getPhone() != null && param.getPhone().length() != 0)
             userInfo.setPhone(param.getPhone());
         if (param.getGender() != null)
             userInfo.setGender(param.getGender());
-        if (param.getAvatarUrl() != null)
+        if (param.getAvatarUrl() != null && param.getAvatarUrl().length() != 0)
             userInfo.setAvatarUrl(param.getAvatarUrl());
         userInfoMapper.updateById(userInfo);
         return CommonResult.success("请求正常");
