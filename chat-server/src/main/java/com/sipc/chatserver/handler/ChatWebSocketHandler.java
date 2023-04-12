@@ -105,7 +105,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
             //系统消息json化
             String time = LocalDateTime.now().format(formatter);
-            String systemMsg = JSONObject.toJSONString(new SendMsg(time, user.getOpenid() + ",进入了聊天室", "system", "system", "system"));
+            String systemMsg = JSONObject.toJSONString(new SendMsg(time, "用户" + data.getUsername() + "进入了聊天室", "system", "system", "system"));
 
             //广播用户加入的消息
             broadcast(roomId, systemMsg);
@@ -186,9 +186,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 roomUserMergeMapper.updateById(a);
             });
 
+            GetUserInfoParam data = userServer.getUserInfo(userId).getData();
+
             //系统消息json化
             String time = LocalDateTime.now().format(formatter);
-            String systemMsg = JSONObject.toJSONString(new SendMsg(time, openid + ",离开了聊天室", "system", "system", "system"));
+            String systemMsg = JSONObject.toJSONString(new SendMsg(time, "用户" + data.getUsername() + "离开了聊天室", "system", "system", "system"));
 
             //广播用户离开的消息
             broadcast(roomId, systemMsg);
