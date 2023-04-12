@@ -62,17 +62,17 @@ public class UserController {
     public CommonResult<List<AcaMajorInfo>> getAllAcaMajorInfo() {
         return userServer.getAllAcamajorInfo();
     }
-
-    @PostMapping("user/info/updateAvatar")
-    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("openId") String openId){
-        // 鉴权
-        try {
-            loginServer.checkRole(openId);
-        } catch (RuntimeException e) {
-            log.info("check role failed: " + e);
-        }
-        //openid 获取 uid
-        User user = loginServer.getUser(openId);
-        return userServer.updateUserAvatar(avatar, user.getId());
-    }
+//
+//    @PostMapping("user/info/updateAvatar")
+//    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("openId") String openId){
+//        // 鉴权
+//        try {
+//            loginServer.checkRole(openId);
+//        } catch (RuntimeException e) {
+//            log.info("check role failed: " + e);
+//        }
+//        //openid 获取 uid
+//        User user = loginServer.getUser(openId);
+//        return userServer.updateUserAvatar(avatar, user.getId());
+//    }
 }

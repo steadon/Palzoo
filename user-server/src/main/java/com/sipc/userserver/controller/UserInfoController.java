@@ -2,22 +2,28 @@ package com.sipc.userserver.controller;
 
 import com.sipc.userserver.pojo.CommonResult;
 import com.sipc.userserver.pojo.param.DropUserInfoParam;
+import com.sipc.userserver.pojo.param.LoginServer.User;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
+import com.sipc.userserver.service.feign.LoginServer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserInfoController {
     private final UserInfoService userInfoService;
+    private final LoginServer loginServer;
 
     @Autowired
-    public UserInfoController(UserInfoService userInfoService) {
+    public UserInfoController(UserInfoService userInfoService, LoginServer loginServer) {
         this.userInfoService = userInfoService;
+        this.loginServer = loginServer;
     }
 
     /**
@@ -65,7 +71,15 @@ public class UserInfoController {
     }
 
     @PostMapping("/info/updateAvatar")
-    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("userId") Integer userId){
-        return userInfoService.UpdateUserAvatar(avatar, userId);
+    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("openId") String openId){
+        // 鉴权
+        try {
+            loginServer.checkRole(openId);
+        } catch (RuntimeException e) {
+            log.info("check role failed: " + e);
+        }
+        //openid 获取 uid
+        User user = loginServer.getUser(openId);
+        return userInfoService.UpdateUserAvatar(avatar, user.getId());
     }
 }

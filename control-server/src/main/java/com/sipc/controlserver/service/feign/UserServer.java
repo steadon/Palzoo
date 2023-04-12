@@ -32,6 +32,6 @@ public interface UserServer {
     @GetMapping("/user/acamajor/get")
     CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo();
 
-    @PostMapping("/user/info/updateAvatar")
-    CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestParam("userId") Integer userId);
+//    @PostMapping("/user/info/updateAvatar")
+//    CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestParam("userId") Integer userId);
 }
