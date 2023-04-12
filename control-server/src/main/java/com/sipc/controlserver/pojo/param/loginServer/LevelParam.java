@@ -1,4 +1,4 @@
-package com.sipc.controlserver.pojo.param;
+package com.sipc.controlserver.pojo.param.loginServer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

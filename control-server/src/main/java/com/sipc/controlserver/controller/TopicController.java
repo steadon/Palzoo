@@ -1,7 +1,7 @@
 package com.sipc.controlserver.controller;
 
 import com.sipc.controlserver.pojo.CommonResult;
-import com.sipc.controlserver.pojo.param.LevelParam;
+import com.sipc.controlserver.pojo.param.loginServer.LevelParam;
 import com.sipc.controlserver.pojo.param.topicServer.*;
 import com.sipc.controlserver.pojo.param.topicServer.service.TopicDeleteParam;
 import com.sipc.controlserver.pojo.param.topicServer.service.TopicFinishParam;
