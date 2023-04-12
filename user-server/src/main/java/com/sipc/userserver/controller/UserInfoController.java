@@ -3,7 +3,6 @@ package com.sipc.userserver.controller;
 import com.sipc.userserver.pojo.CommonResult;
 import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
-import com.sipc.userserver.pojo.param.UpdateUserAvatarParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
@@ -66,7 +65,7 @@ public class UserInfoController {
     }
 
     @PostMapping("/info/updateAvatar")
-    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestBody UpdateUserAvatarParam param){
-        return userInfoService.UpdateUserAvatar(file, param);
+    public CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile avatar, @RequestParam("userId") Integer userId){
+        return userInfoService.UpdateUserAvatar(avatar, userId);
     }
 }

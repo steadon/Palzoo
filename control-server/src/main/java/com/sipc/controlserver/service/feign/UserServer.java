@@ -3,7 +3,6 @@ package com.sipc.controlserver.service.feign;
 import com.sipc.controlserver.pojo.CommonResult;
 import com.sipc.controlserver.pojo.param.userServer.DropUserInfoParam;
 import com.sipc.controlserver.pojo.param.userServer.PostNewUserIdParam;
-import com.sipc.controlserver.pojo.param.userServer.UpdateUserAvatarParam;
 import com.sipc.controlserver.pojo.param.userServer.UpdateUserInfoParam;
 import com.sipc.controlserver.pojo.result.userServer.AcaMajorInfo;
 import com.sipc.controlserver.pojo.result.userServer.GetUserInfoResult;
@@ -34,5 +33,5 @@ public interface UserServer {
     CommonResult<List<AcaMajorInfo>> getAllAcamajorInfo();
 
     @PostMapping("/user/info/updateAvatar")
-    CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestBody UpdateUserAvatarParam param);
+    CommonResult<String> updateUserAvatar(@RequestParam("avatar") MultipartFile file, @RequestParam("userId") Integer userId);
 }

@@ -8,7 +8,6 @@ import com.sipc.userserver.pojo.domain.AcaMajor;
 import com.sipc.userserver.pojo.domain.UserInfo;
 import com.sipc.userserver.pojo.param.DropUserInfoParam;
 import com.sipc.userserver.pojo.param.PostNewUserIdParam;
-import com.sipc.userserver.pojo.param.UpdateUserAvatarParam;
 import com.sipc.userserver.pojo.param.UpdateUserInfoParam;
 import com.sipc.userserver.pojo.result.GetUserInfoResult;
 import com.sipc.userserver.service.UserInfoService;
@@ -159,13 +158,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
-     * @param file 头像文件
-     * @param param 用户ID
+     * @param avatar 头像文件
+     * @param userId 用户ID
      * @return 处理结果
      */
     @Override
-    public CommonResult<String> UpdateUserAvatar(MultipartFile file, UpdateUserAvatarParam param) {
-        UserInfo userInfo = userInfoMapper.selectById(param.getUserId());
+    public CommonResult<String> UpdateUserAvatar(MultipartFile avatar, Integer userId) {
+        UserInfo userInfo = userInfoMapper.selectById(userId);
         if (userInfo == null)
             return CommonResult.fail("用户不存在");
         if (userInfo.getAvatarUrl() != null && userInfo.getAvatarUrl().length() != 0){
@@ -181,11 +180,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         String newUserAvatar = MinioUtil.hashFile(userInfo.getUserId());
         InputStream is = null;
         try {
-            is = file.getInputStream();
+            is = avatar.getInputStream();
             minioClient.putObject(PutObjectArgs.builder()
                             .bucket(minioConfig.getBucketName())
                             .object(newUserAvatar + MinioUtil.URLEnd)
-                            .stream(is, file.getSize(), -1)
+                            .stream(is, avatar.getSize(), -1)
                             .build());
             is.close();
         } catch (Throwable e) {
