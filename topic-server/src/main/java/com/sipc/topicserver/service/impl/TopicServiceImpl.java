@@ -478,18 +478,18 @@ public class TopicServiceImpl implements TopicService {
      */
     private GetUserInfoResult getAuthor(Integer authorId) {
         //redis获取用户信息
-        GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("userId:" + authorId);
-
+//        GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("userId:" + authorId);
+        GetUserInfoResult author;
         //如果redis中没有用户信息，使用openfeign调用user-server的服务获取用户详细信息
-        if (author == null ) {
+//        if (author == null ) {
             CommonResult<GetUserInfoResult> serverUserInfo = userServer.getUserInfo(authorId);
             if (Objects.equals(serverUserInfo.getCode(), "A0400")) {
                 log.info("查询用户无信息，查询用户id {}", authorId);
                 return null;
             }
             author = serverUserInfo.getData();
-            redisUtil.set("userId:" + authorId, author, (long)60, TimeUnit.MINUTES);
-        }
+//            redisUtil.set("userId:" + authorId, author, (long)60, TimeUnit.MINUTES);
+//        }
         return author;
     }
 

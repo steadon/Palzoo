@@ -42,7 +42,7 @@ public class MessageController {
         try {
             userId = loginServer.getUser(openId).getId();
         } catch (RuntimeException e) {
-            log.warn("完成帖子接口不正常,用户openid: {}, 错误信息: {}", openId, e.toString());
+            log.warn("用户权限异常,用户openid: {}, 错误信息: {}", openId, e.toString());
             return CommonResult.fail("权限异常");
         }
 

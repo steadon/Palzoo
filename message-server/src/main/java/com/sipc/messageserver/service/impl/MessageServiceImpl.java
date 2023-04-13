@@ -68,7 +68,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public CommonResult<List<MessageResult>> getMessage(Integer userId) {
 
-        List<Message> messages = messageMapper.selectList(new QueryWrapper<Message>().eq("to_user_id", userId));
+        List<Message> messages = messageMapper.selectList(new QueryWrapper<Message>().eq("to_user_id", userId).orderByDesc("id"));
 
         List<MessageResult> results = new ArrayList<>();
 
@@ -145,10 +145,10 @@ public class MessageServiceImpl implements MessageService {
 
     private GetUserInfoResult getAuthor(Integer authorId) {
         //redis获取用户信息
-        GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("message:userId:" + authorId);
-
+//        GetUserInfoResult author = (GetUserInfoResult)redisUtil.get("message:userId:" + authorId);
+        GetUserInfoResult author;
         //如果redis中没有用户信息，使用openfeign调用user-server的服务获取用户详细信息
-        if (author == null ) {
+//        if (author == null ) {
             CommonResult<GetUserInfoResult> serverUserInfo = userServer.getUserInfo(authorId);
             if (Objects.equals(serverUserInfo.getCode(), "A0400")) {
                 log.info("查询用户无信息，查询用户id {}", authorId);
@@ -159,8 +159,8 @@ public class MessageServiceImpl implements MessageService {
                 log.info("查询用户不存在，查询用户id {}", authorId);
                 return null;
             }
-            redisUtil.set("message:userId:" + authorId, author);
-        }
+//            redisUtil.set("message:userId:" + authorId, author);
+//        }
         return author;
     }
 

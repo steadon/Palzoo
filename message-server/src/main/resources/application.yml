@@ -37,7 +37,9 @@ spring:
   cloud:
     nacos:
       server-addr: ${nacos-server}
-
+      discovery:
+        ip:  43.142.146.75
+        port: 11560
 feign:
   client:
     config:
@@ -69,7 +71,7 @@ mybatis-plus:
 #  level:
 #    com.sipc.messageserver.mapper: debug
 
-lark-robot:
-  url: https://open.feishu.cn/open-apis/bot/v2/hook/4184ed49-2a44-4b2d-9d2a-f62f0b21a6a8
-  dev: true
+#lark-robot:
+#  url: https://open.feishu.cn/open-apis/bot/v2/hook/4184ed49-2a44-4b2d-9d2a-f62f0b21a6a8
+#  dev: true
 
