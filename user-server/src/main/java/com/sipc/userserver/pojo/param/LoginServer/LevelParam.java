@@ -8,4 +8,7 @@ import lombok.Data;
 public class LevelParam {
     private Integer level;
     private String description;
+
+    public LevelParam() {
+    }
 }
