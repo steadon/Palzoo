@@ -17,6 +17,9 @@ spring:
   cloud:
     nacos:
       server-addr: ${nacos-server}
+      discovery:
+        ip: 43.142.146.75
+        port: 11510
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
